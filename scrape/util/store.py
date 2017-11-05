@@ -4,6 +4,7 @@
 import sqlite3 as lite
 import sys
 
+
 class Store():
 
     def __init__(self, db_file):
@@ -23,7 +24,8 @@ class Store():
 
     def add(self, hash, timestamp, filename):
         cur = self.con.cursor()
-        cur.execute('insert into download values(?,?,?)', (hash, timestamp, filename,))
+        cur.execute('insert into download values(?,?,?)',
+                    (hash, timestamp, filename,))
         self.con.commit()
         return True
 

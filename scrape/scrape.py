@@ -3,7 +3,8 @@
 
 import urllib
 from datetime import datetime
-import urllib, json
+import urllib
+import json
 from PIL import ImageFont
 from PIL import ImageDraw
 from PIL import Image
@@ -16,6 +17,7 @@ from util.store import Store
 import time
 import sys
 import shutil
+
 
 def download_file(url, destination):
     """
@@ -38,12 +40,14 @@ def download_file(url, destination):
     try:
         page = urllib.urlopen(url)
         if page.getcode() is not 200:
-            print('Tried to download data from %s and got http response code %s', url, str(page.getcode()))
+            print('Tried to download data from %s and got http response code %s', url, str(
+                page.getcode()))
             return None
         urllib.urlretrieve(url, destination)
         return (url, destination)
-    except Exception,e:
-        print('Error downloading data from {0} to {1}'.format(url, destination))
+    except Exception, e:
+        print('Error downloading data from {0} to {1}'.format(
+            url, destination))
         print str(e)
         return None
 
@@ -51,49 +55,52 @@ def download_file(url, destination):
 def prepare_dowload():
 
     files_to_download = []
-    date="{:%F_%H-%M-%S}".format(datetime.now())
+    date = "{:%F_%H-%M-%S}".format(datetime.now())
 
-    #fi northern balic bouy
+    # fi northern balic bouy
     fi_bouy_base_url = "http://cdn.fmi.fi/legacy-fmi-fi-content/products/wave-height-graphs/wave-plot.php?station=1&lang=sv"
     fi_bouy_of = "fi_bouy_northern_baltic_{date}.png"
 
     files_to_download.append((fi_bouy_base_url, fi_bouy_of.format(date=date)))
 
-
-    #fi significant wave height forecast
+    # fi significant wave height forecast
     fi_forecast_base_url = "http://cdn.fmi.fi/marine-forecasts/products/wave-forecast-maps/wave03.gif"
     fi_forecast_of = "fi_forecast_significant_wave_height_{date}.gif"
 
-    files_to_download.append((fi_forecast_base_url, fi_forecast_of.format(date=date)))
+    files_to_download.append(
+        (fi_forecast_base_url, fi_forecast_of.format(date=date)))
 
-    #dmi swell
-    dmi_forecast_base_url="http://ocean.dmi.dk/anim/plots/{idx}.ba.1.png"
+    # dmi swell
+    dmi_forecast_base_url = "http://ocean.dmi.dk/anim/plots/{idx}.ba.1.png"
     dmi_forecast_of = "dmi_forecast_{desc}_{date}.png"
 
     dmi_image_range = [
         ("tp", "dominant_wave_period"),
-       ("hs", "significant_wave_height"),
-       ("hsw", "swell_height"),
-       ("tsw", "period_of_total_swell"),
-       ("win", "wind"),
+        ("hs", "significant_wave_height"),
+        ("hsw", "swell_height"),
+        ("tsw", "period_of_total_swell"),
+        ("win", "wind"),
     ]
 
     for (idx, desc) in dmi_image_range:
-        files_to_download.append((dmi_forecast_base_url.format(idx=idx), dmi_forecast_of.format(desc=desc, date=date)))
+        files_to_download.append((dmi_forecast_base_url.format(
+            idx=idx), dmi_forecast_of.format(desc=desc, date=date)))
 
-    #smhi 
+    # smhi
     smhi_bouy_base_url = "https://www.smhi.se/hfa_coord/BOOS/Waves/Stationplot/Last_24h/{idx}.png"
     smhi_bouy_of = "smhi_observation_bouy_{desc}_{date}.png"
     smhi_bouy_image_range = [
         ("HuvudskarOst_SMHI", "huvudskar_ost"),
-       ("Knollsgrund_SMHI", "knolls_grund"),
-       ("FinngrundetWR_SMHI","finngrundet_wr")
+        ("Knollsgrund_SMHI", "knolls_grund"),
+        ("FinngrundetWR_SMHI", "finngrundet_wr")
     ]
 
     for (idx, desc) in smhi_bouy_image_range:
-        files_to_download.append((smhi_bouy_base_url.format(idx=idx), smhi_bouy_of.format(desc=desc, date=date)))
+        files_to_download.append((smhi_bouy_base_url.format(
+            idx=idx), smhi_bouy_of.format(desc=desc, date=date)))
 
     return files_to_download
+
 
 def process_files(db_file, files, archive_path):
     with Store(db_file) as store:
@@ -106,8 +113,10 @@ def process_files(db_file, files, archive_path):
 
                 # process the file if not already in db
                 if store.get(hexh) is None:
-                    print('adding {hexh} {fn} to database'.format(hexh=hexh, fn=fn))           
-                    store.add(hash=hexh, timestamp=time.mktime(datetime.now().timetuple()), filename=os.path.basename(fn))
+                    print('adding {hexh} {fn} to database'.format(
+                        hexh=hexh, fn=fn))
+                    store.add(hash=hexh, timestamp=time.mktime(
+                        datetime.now().timetuple()), filename=os.path.basename(fn))
 
                     new_fn = os.path.join(archive_path, os.path.basename(fn))
                     if not os.path.isfile(new_fn):
@@ -115,13 +124,15 @@ def process_files(db_file, files, archive_path):
                     else:
                         print("file {0} exists, skipping".format(new_fn))
                 else:
-                    print('skipping {hexh} {fn}, already in database'.format(hexh=hexh, fn=fn))
+                    print('skipping {hexh} {fn}, already in database'.format(
+                        hexh=hexh, fn=fn))
             except Exception, e:
                 print(e)
-            finally:  
-                #clean up
+            finally:
+                # clean up
                 if os.path.isfile(fn):
                     os.remove(fn)
+
 
 def main(argv):
     dir = os.path.dirname(__file__)
@@ -138,5 +149,6 @@ def main(argv):
 
     process_files(db_file, downloads, archive_dir)
 
-if __name__ == "__main__": main(sys.argv[1:])
 
+if __name__ == "__main__":
+    main(sys.argv[1:])

@@ -35,7 +35,7 @@ def fix_image_dates(img_path):
     os.utime(img_path, (t, t))
 
 
-#if __name__ == '__main__':
+# if __name__ == '__main__':
 #    dir = '.'
 #    for root, dirs, file_names in os.walk(dir):
 #        for file_name in file_names:
