@@ -15,6 +15,7 @@ import util.fix_exif_date
 from util.store import Store
 import time
 import sys
+import shutil
  
 def download_file(url, destination):
     """
@@ -106,11 +107,11 @@ def process_files(db_file, files, archive_path):
             # process the file if not already in db
             if store.get(hexh) is None:
                print('adding {hexh} {fn} to database'.format(hexh=hexh, fn=fn))           
-               store.add(hash=hexh, timestamp=time.mktime(datetime.now().timetuple()), filename=fn)
+               store.add(hash=hexh, timestamp=time.mktime(datetime.now().timetuple()), filename=os.path.basename(fn))
         
                new_fn = os.path.join(archive_path, os.path.basename(fn))
                if not os.path.isfile(new_fn):
-                  os.rename(fn, new_fn)
+                  shutil.move(fn, new_fn)
                else:
                   print("file {0} exists, skipping".format(new_fn))
             else:
