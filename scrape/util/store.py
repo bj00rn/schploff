@@ -37,5 +37,6 @@ class Store():
 
     def updated(self, file_class):
         cur = self.con.cursor()
-        cur.execute("SELECT timestamp FROM download where fileclass=? ORDER BY timestamp DESC LIMIT 1" , (file_class,))
+        cur.execute(
+            "SELECT timestamp FROM download where fileclass=? ORDER BY timestamp DESC LIMIT 1", (file_class,))
         return cur.fetchone()
