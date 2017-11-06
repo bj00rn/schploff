@@ -55,21 +55,21 @@ def download_file(url, destination):
 
 def prepare_dowload():
 
-    files_to_download = []
+    files_to_download = [] #(baseurl, outfile, class)
     date = "{:%F_%H-%M-%S}".format(datetime.now())
 
     # fi northern balic bouy
     fi_bouy_base_url = "http://cdn.fmi.fi/legacy-fmi-fi-content/products/wave-height-graphs/wave-plot.php?station=1&lang=sv"
     fi_bouy_of = "fi_bouy_northern_baltic_{date}.png"
 
-    files_to_download.append((fi_bouy_base_url, fi_bouy_of.format(date=date)))
+    files_to_download.append((fi_bouy_base_url, fi_bouy_of.format(date=date), "fi_bouy_northern_baltic"))
 
     # fi significant wave height forecast
     fi_forecast_base_url = "http://cdn.fmi.fi/marine-forecasts/products/wave-forecast-maps/wave03.gif"
     fi_forecast_of = "fi_forecast_significant_wave_height_{date}.gif"
 
     files_to_download.append(
-        (fi_forecast_base_url, fi_forecast_of.format(date=date)))
+        (fi_forecast_base_url, fi_forecast_of.format(date=date), "fi_forecast_significant_wave_height"))
 
     # dmi swell
     dmi_forecast_base_url = "http://ocean.dmi.dk/anim/plots/{idx}.ba.1.png"
@@ -84,8 +84,9 @@ def prepare_dowload():
     ]
 
     for (idx, desc) in dmi_image_range:
-        files_to_download.append((dmi_forecast_base_url.format(
-            idx=idx), dmi_forecast_of.format(desc=desc, date=date)))
+        files_to_download.append(
+            (dmi_forecast_base_url.format(idx=idx), dmi_forecast_of.format(desc=desc, date=date),
+             "dmi_forecast_{desc}".format(desc=desc)))
 
     # smhi
     smhi_bouy_base_url = "https://www.smhi.se/hfa_coord/BOOS/Waves/Stationplot/Last_24h/{idx}.png"
@@ -98,7 +99,7 @@ def prepare_dowload():
 
     for (idx, desc) in smhi_bouy_image_range:
         files_to_download.append((smhi_bouy_base_url.format(
-            idx=idx), smhi_bouy_of.format(desc=desc, date=date)))
+            idx=idx), smhi_bouy_of.format(desc=desc, date=date), "smhi_observation_bouy_{desc}".format(desc=desc)))
 
     return files_to_download
 
@@ -108,12 +109,21 @@ def process_files(db_file, files, archive_path):
     gd.connect()
 
     with Store(db_file) as store:
-        for (source_url, fn) in files:
+        for (source_url, fn, file_class,) in files:
             try:
                 ext = os.path.splitext(fn)[1]
 
                 with Image.open(fn) as im:
                     hexh = hashlib.md5(im.tobytes()).hexdigest()
+               
+                last_updated = store.updated(file_class)
+                t = time.time()
+
+                diff=datetime.fromtimestamp(t) - datetime.fromtimestamp(last_updated)
+
+                #diff is negative as t2 is in the future compared to t2
+                print('difference is {0} seconds'.format(diff.total_seconds()))
+
 
                 # process the file if not already in db
                 if store.get(hexh) is None:
@@ -136,7 +146,7 @@ def process_files(db_file, files, archive_path):
                         hexh=hexh, fn=fn))
 
                     store.add(hash=hexh, timestamp=time.mktime(
-                        datetime.now().timetuple()), filename=os.path.basename(fn))
+                        datetime.now().timetuple()), filename=os.path.basename(fn), file_class=file_class)
 
                 else:
                     print('skipping {hexh} {fn}, already in database'.format(
@@ -158,10 +168,10 @@ def main(argv):
     db_file = os.path.join(dir, 'scrape.sqlite3')
     downloads = []
 
-    for(url, of) in prepare_dowload():
+    for(url, of, file_class) in prepare_dowload():
         result = download_file(url, os.path.join(temp_dir, of))
         if result is not None:
-            downloads.append(result)
+            downloads.append(result + (file_class,))
 
     process_files(db_file, downloads, archive_dir)
 

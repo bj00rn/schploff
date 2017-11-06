@@ -22,10 +22,10 @@ class Store():
         data = cur.fetchone()
         return data
 
-    def add(self, hash, timestamp, filename):
+    def add(self, hash, timestamp, filename, file_class):
         cur = self.con.cursor()
-        cur.execute('insert into download values(?,?,?)',
-                    (hash, timestamp, filename,))
+        cur.execute('insert into download values(?,?,?,?)',
+                    (hash, timestamp, filename, file_class))
         self.con.commit()
         return True
 
@@ -34,3 +34,8 @@ class Store():
         cur.execute("DELETE FROM download WHERE hash=?", (hash,))
         self.con.commit()
         return True
+
+    def updated(self, file_class):
+        cur = self.con.cursor()
+        cur.execute("SELECT timestamp FROM download where fileclass=? ORDER BY timestamp DESC LIMIT 1" , (file_class,))
+        return cur.fetchone()
