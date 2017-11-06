@@ -27,11 +27,11 @@ from gi.repository import GExiv2
 def fix_image_dates(img_path):
     t = os.path.getctime(img_path)
     ctime = time.strftime('%Y:%m:%d %H:%M:%S', time.localtime(t))
-    exif = GExiv2.Metadata(img_path)
-    exif['Exif.Image.DateTime'] = ctime
-    exif['Exif.Photo.DateTimeDigitized'] = ctime
-    exif['Exif.Photo.DateTimeOriginal'] = ctime
-    exif.save_file()
+    exif_data = GExiv2.Metadata(img_path)
+    exif_data['Exif.Image.DateTime'] = ctime
+    exif_data['Exif.Photo.DateTimeDigitized'] = ctime
+    exif_data['Exif.Photo.DateTimeOriginal'] = ctime
+    exif_data.save_file()
     os.utime(img_path, (t, t))
 
 

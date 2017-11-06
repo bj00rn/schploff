@@ -14,6 +14,7 @@ import os
 import hashlib
 import util.fix_exif_date
 from util.store import Store
+from util.gdStore import GDStore
 import time
 import sys
 import shutil
@@ -103,6 +104,9 @@ def prepare_dowload():
 
 
 def process_files(db_file, files, archive_path):
+    gd = GDStore("0Byrk3xueZv-4cmtBb1cxdFY4WTg", './google_api/settings.yaml')
+    gd.connect()
+
     with Store(db_file) as store:
         for (source_url, fn) in files:
             try:
@@ -113,16 +117,27 @@ def process_files(db_file, files, archive_path):
 
                 # process the file if not already in db
                 if store.get(hexh) is None:
-                    print('adding {hexh} {fn} to database'.format(
-                        hexh=hexh, fn=fn))
-                    store.add(hash=hexh, timestamp=time.mktime(
-                        datetime.now().timetuple()), filename=os.path.basename(fn))
+
+                    gd_file = None
+                    try:
+                        print('Uploading to GoogleDrive...')
+                        gd_file = gd.upload(fn, '')
+                        print 'Uploaded {checksum}'.format(checksum=gd_file['md5Checksum'])
+                    except Exception as e:
+                        print('Error uploading to GoogleDrive')
 
                     new_fn = os.path.join(archive_path, os.path.basename(fn))
                     if not os.path.isfile(new_fn):
                         shutil.move(fn, new_fn)
                     else:
                         print("file {0} exists, skipping".format(new_fn))
+
+                    print('adding {hexh} {fn} to database'.format(
+                        hexh=hexh, fn=fn))
+
+                    store.add(hash=hexh, timestamp=time.mktime(
+                        datetime.now().timetuple()), filename=os.path.basename(fn))
+
                 else:
                     print('skipping {hexh} {fn}, already in database'.format(
                         hexh=hexh, fn=fn))
@@ -136,6 +151,7 @@ def process_files(db_file, files, archive_path):
 
 def main(argv):
     dir = os.path.dirname(__file__)
+    os.chdir(dir)
     base_dir = argv[0]
     archive_dir = os.path.join(base_dir,  "archive")
     temp_dir = os.path.join(dir,  "temp")
