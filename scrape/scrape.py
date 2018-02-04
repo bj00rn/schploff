@@ -4,8 +4,7 @@
 import os
 import sys
 from datetime import datetime
-from util.download import download_file, process_files
-
+from util.download import download_file, process_files, get_image
 
 def prepare_download():
 
@@ -14,21 +13,21 @@ def prepare_download():
 
     # fi northern balic bouy
     fi_bouy_base_url = "http://cdn.fmi.fi/legacy-fmi-fi-content/products/wave-height-graphs/wave-plot.php?station=1&lang=sv"
-    fi_bouy_of = "fi_bouy_northern_baltic_{date}.png"
+    fi_bouy_of = "fi_bouy_northern_baltic_{date}"
 
     files_to_download.append(
         (fi_bouy_base_url, fi_bouy_of.format(date=date), "fi_bouy_northern_baltic"))
 
     # fi significant wave height forecast
     fi_forecast_base_url = "http://cdn.fmi.fi/marine-forecasts/products/wave-forecast-maps/wave03.gif"
-    fi_forecast_of = "fi_forecast_significant_wave_height_{date}.gif"
+    fi_forecast_of = "fi_forecast_significant_wave_height_{date}"
 
     files_to_download.append(
         (fi_forecast_base_url, fi_forecast_of.format(date=date), "fi_forecast_significant_wave_height"))
 
     # dmi swell
     dmi_forecast_base_url = "http://ocean.dmi.dk/anim/plots/{idx}.ba.1.png"
-    dmi_forecast_of = "dmi_forecast_{desc}_{date}.png"
+    dmi_forecast_of = "dmi_forecast_{desc}_{date}"
 
     dmi_image_range = [
         ("tp", "dominant_wave_period"),
@@ -45,7 +44,7 @@ def prepare_download():
 
     # smhi
     smhi_bouy_base_url = "https://www.smhi.se/hfa_coord/BOOS/Waves/Stationplot/Last_24h/{idx}.png"
-    smhi_bouy_of = "smhi_observation_bouy_{desc}_{date}.png"
+    smhi_bouy_of = "smhi_observation_bouy_{desc}_{date}"
     smhi_bouy_image_range = [
         ("HuvudskarOst_SMHI", "huvudskar_ost"),
         ("Knollsgrund_SMHI", "knolls_grund"),
@@ -69,11 +68,12 @@ def main(argv):
     downloads = []
 
     for(url, of, file_class) in prepare_download():
-        result = download_file(url, os.path.join(temp_dir, of))
+#        result = download_file(url, os.path.join(temp_dir, of))
+        result = get_image(url)
         if result is not None:
-            downloads.append(result + (file_class,))
+            downloads.append(result + (of, file_class, url,))
 
-    process_files(db_file, downloads, archive_dir)
+    process_files(db_file, downloads, archive_dir, temp_dir)
 
 
 if __name__ == "__main__":
