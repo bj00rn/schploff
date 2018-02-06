@@ -13,6 +13,7 @@ from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
+image_format = 'webp'
 
 def process_files(db_file, files, archive_path, temp_path):
     with Store(db_file) as store:
@@ -26,17 +27,17 @@ def process_files(db_file, files, archive_path, temp_path):
                     if store.get(hexh) is None:
                         processed_image = process_file(im)
                         temp_file = save_image(processed_image, temp_path,
-                                               hexh, 'png')
+                                               hexh, image_format)
 
                         fix_image_dates(temp_file)
 
                         archive_file = archive_image(
                             archive_path=archive_path,
                             source_path=temp_file,
-                            of_name="{fn}.{ext}".format(fn=of_name, ext="png"),
+                            of_name="{fn}.{ext}".format(fn=of_name, ext=image_format),
                         )
 
-                        upload_to_drive(archive_file, "0Byrk3xueZv-4cmtBb1cxdFY4WTg", './google_api/settings.yaml', '{fn}.{ext}'.format(fn=of_name, ext='png'))
+                        upload_to_drive(archive_file, "0Byrk3xueZv-4cmtBb1cxdFY4WTg", './google_api/settings.yaml', '{fn}.{ext}'.format(fn=of_name, ext=image_fornat))
 
                         store.add(
                             hash=hexh,
@@ -61,7 +62,7 @@ def upload_to_drive(source_file, target_path, settings_file, file_name=None):
         gd.connect()
         gd_file = gd.upload(source_file, file_name, 'test')
 
-def save_image(image, archive_path, file_name, ext='jpeg'):
+def save_image(image, archive_path, file_name, ext='webp'):
     fn = os.path.join(archive_path, file_name)
     image.save("{fn}.{ext}".format(fn=fn, ext=ext), ext)
     return "{fn}.{ext}".format(fn=fn, ext=ext)
