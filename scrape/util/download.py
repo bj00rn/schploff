@@ -1,69 +1,95 @@
-import os
-import urllib2
-from PIL import ImageFont
-from PIL import ImageDraw
+import os, io
+from requests import get
+from urllib import request
 from PIL import Image
-from StringIO import StringIO
 import hashlib
-import util.fix_exif_date
-from util.store import Store
-from util.gdStore import GDStore
-from util.image replace_transparency
-from util.fix_exif_date import fix_image_dates
-
-import time
+from .fix_exif_date import fix_image_dates
+from .store import Store
+from .gdStore import GDStore
+from .image import replace_transparency
 import shutil
+import logging
+import time
 from datetime import datetime
+
+logger = logging.getLogger(__name__)
 
 
 def process_files(db_file, files, archive_path, temp_path):
     with Store(db_file) as store:
         for (image_data, of_name, file_class, source_url) in files:
             try:
-                with Image.open(StringIO(image_data)) as im:
-                    im.verify()
-                    hexh = hashlib.md5(im.tobytes()).hexdigest()                    
- 
+                with replace_transparency(Image.open(
+                        io.BytesIO(image_data))) as im:
+                    hexh = hashlib.md5(image_data).hexdigest()
+
                     # process the file if not already in db
                     if store.get(hexh) is None:
-                        
-                        new_fn = process_file(os.path., im)
+                        processed_image = process_file(im)
+                        temp_file = save_image(processed_image, temp_path,
+                                               hexh, 'png')
 
-                        upload_to_drive(new_fn, "0Byrk3xueZv-4cmtBb1cxdFY4WTg", './google_api/settings.yaml')
+                        fix_image_dates(temp_file)
 
-                        print('adding {hexh} {fn} to database'.format(
-                            hexh=hexh, fn=fn))
+                        archive_file = archive_image(
+                            archive_path=archive_path,
+                            source_path=temp_file,
+                            of_name="{fn}.{ext}".format(fn=of_name, ext="png"),
+                        )
 
-                        store.add(hash=hexh, timestamp=time.mktime(
-                            datetime.now().timetuple()), filename=os.path.basename(fn), file_class=file_class)
+                        upload_to_drive(temp_file, "0Byrk3xueZv-4cmtBb1cxdFY4WTg", './google_api/settings.yaml')
+
+                        store.add(
+                            hash=hexh,
+                            timestamp=time.mktime(datetime.now().timetuple()),
+                            filename=os.path.basename(archive_file),
+                            file_class=file_class)
+
+                        if os.path.isfile(temp_file):
+                            os.remove(temp_file)
 
                     else:
-                        print('skipping {hexh} {fn}, already in database'.format(
-                            hexh=hexh, fn=fn))
+                        logger.info(
+                            "skipping [{hash}[ [{filename}] already in db".format(
+                                hash=hexh, filename=of_name))
 
-                except Exception, e:
-                    print(e)
-                finally:
-                # clean up
-                    if os.path.isfile(fn):
-                        os.remove(fn)
+            except Exception as e:
+                logger.error("failed to process [{hexh}] [{fn}]".format(hexh=hexh, fn=of_name))
+
 
 def upload_to_drive(source_file, target_path, settings_file):
     try:
-        print('Uploading to GoogleDrive...')
         gd = GDStore(target_path, settings_file)
         gd.connect()
-        gd_file = gd.upload(outfilename, '')
-        print 'Uploaded {checksum}'.format(checksum=gd_file['md5Checksum'])
+        gd_file = gd.upload(source_file, '')
+        logger.info('Uploaded [{checksum}]'.format(checksum=gd_file['md5Checksum']))
     except Exception as e:
-        print('Error uploading to GoogleDrive')
-    
-def process_file(image_data)
-    image.replace_transparency(image_data)
+        logger.error('Error uploading to GoogleDrive')
 
-def get_image(url)
-      img = urllib2.urlopen(url).read()
-      return (url, img)
+
+def save_image(image, archive_path, file_name, ext='jpeg'):
+    fn = os.path.join(archive_path, file_name)
+    image.save("{fn}.{ext}".format(fn=fn, ext=ext), ext)
+    return "{fn}.{ext}".format(fn=fn, ext=ext)
+
+
+def archive_image(source_path, of_name, archive_path):
+    fn = os.path.join(archive_path, os.path.basename(of_name))
+    shutil.copyfile(src=source_path, dst=fn, )
+    return fn
+
+
+def process_file(image_data):
+    return replace_transparency(image_data)
+
+
+def get_image(url):
+    logger.info("getting url {url}".format(url=url))
+    i = get(url).content
+    return (
+        url,
+        i,
+    )
 
 
 def download_file(url, destination):
@@ -83,17 +109,17 @@ def download_file(url, destination):
         (Source url, The path of the file that was downloaded) or None if download failed
     """
     destination = os.path.realpath(destination)
-    print ('Downloading data from {0} to {1}'.format(url, destination))
+    logger.info('Downloading data from {0} to {1}'.format(url, destination))
     try:
-        page = urllib.urlopen(url)
+        page = request.urlopen(url)
         if page.getcode() is not 200:
-            print('Tried to download data from %s and got http response code %s', url, str(
-                page.getcode()))
+            logger.info(
+                'Tried to download data from %s and got http response code %s',
+                url, str(page.getcode()))
             return None
-        urllib.urlretrieve(url, destination)
+        request.urlretrieve(url, destination)
         return (url, destination)
-    except Exception, e:
-        print('Error downloading data from {0} to {1}'.format(
+    except Exception as e:
+        logger.error('Error downloading data from {0} to {1}'.format(
             url, destination))
-        print str(e)
         return None
