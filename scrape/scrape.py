@@ -8,6 +8,7 @@ from datetime import datetime
 from util.download import process_files, get_image
 import logging
 import logging.config
+from util.imagefile import FIBouySource, DMISource, SMHIBouySource, FIForecastSource
 
 
 
@@ -72,17 +73,9 @@ def main(argv):
     archive_dir = os.path.join(base_dir, "archive")
     temp_dir = os.path.join(dir, "temp")
     db_file = os.path.join(dir, 'scrape.sqlite3')
-    downloads = []
-
-    for (url, of, file_class) in prepare_download():
-        #        result = download_file(url, os.path.join(temp_dir, of))
-        u, i = get_image(url)
-        if i is not None:
-            downloads.append((i,) + (
-                of,
-                file_class,
-                url,
-            ))
+    downloads = DMISource().get_files() + SMHIBouySource(
+        ).get_files() + FIBouySource().get_files() + FIForecastSource(
+        ).get_files()
 
     process_files(db_file, downloads, archive_dir, temp_dir)
 
