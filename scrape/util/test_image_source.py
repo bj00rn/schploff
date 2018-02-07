@@ -1,5 +1,5 @@
 import unittest
-from .imagefile import DMISource, SMHIBouySource, FIBouySource, FIForecastSource
+from .image_source import DMISource, SMHIBouySource, FIBouySource, FIForecastSource
 
 
 class TestImageClass(unittest.TestCase):
