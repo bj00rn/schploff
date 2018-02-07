@@ -5,7 +5,7 @@ from pydrive import settings
 import logging
 
 logger = logging.getLogger(__name__)
-
+logging.getLogger('googleapiclient.discovery_cache').setLevel(logging.ERROR)
 
 class GDStore:
     def __init__(self, path, settings_file, interactive=False):
@@ -14,23 +14,25 @@ class GDStore:
         self.interactive = interactive
         self.config = settings.LoadSettingsFile(settings_file)
 
-    def upload(self, file_path, description=None):
+    def upload(self, file_path, file_name=None,  description=None):
+        base_name = os.path.basename(file_path)
+        fn =  file_name if file_name is not None else base_name
         try:
-            base_name = os.path.basename(file_path)
             drive = GoogleDrive(self.gauth)
+
             file1 = drive.CreateFile({
                 'parents': [{
                     'kind': 'drive#fileLink',
                     'id': self.path,
                 }],
-                'title':
-                base_name,
+                'title': fn,
                 'description':
                 description,
             })
             # Set content of the file from given string.
             file1.SetContentFile(file_path)
             file1.Upload()
+            logger.info('Uploaded [{checksum}] [{fn}]'.format(checksum=file1['md5Checksum'], fn=fn))
             return file1
         except Exception as e:
             logger("failed to upload [{fn}] to google drive".format(fn=file_path))

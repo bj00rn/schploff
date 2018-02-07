@@ -5,7 +5,7 @@ import os
 import sys
 import logging
 from datetime import datetime
-from util.download import download_file, process_files, get_image
+from util.download import process_files, get_image
 import logging
 import logging.config
 

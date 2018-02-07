@@ -1,6 +1,5 @@
 import os, io
 from requests import get
-from urllib import request
 from PIL import Image
 import hashlib
 from .fix_exif_date import fix_image_dates
@@ -37,7 +36,7 @@ def process_files(db_file, files, archive_path, temp_path):
                             of_name="{fn}.{ext}".format(fn=of_name, ext="png"),
                         )
 
-                        upload_to_drive(temp_file, "0Byrk3xueZv-4cmtBb1cxdFY4WTg", './google_api/settings.yaml')
+                        upload_to_drive(archive_file, "0Byrk3xueZv-4cmtBb1cxdFY4WTg", './google_api/settings.yaml', '{fn}.{ext}'.format(fn=of_name, ext='png'))
 
                         store.add(
                             hash=hexh,
@@ -57,15 +56,10 @@ def process_files(db_file, files, archive_path, temp_path):
                 logger.error("failed to process [{hexh}] [{fn}]".format(hexh=hexh, fn=of_name))
 
 
-def upload_to_drive(source_file, target_path, settings_file):
-    try:
+def upload_to_drive(source_file, target_path, settings_file, file_name=None):
         gd = GDStore(target_path, settings_file)
         gd.connect()
-        gd_file = gd.upload(source_file, '')
-        logger.info('Uploaded [{checksum}]'.format(checksum=gd_file['md5Checksum']))
-    except Exception as e:
-        logger.error('Error uploading to GoogleDrive')
-
+        gd_file = gd.upload(source_file, file_name, 'test')
 
 def save_image(image, archive_path, file_name, ext='jpeg'):
     fn = os.path.join(archive_path, file_name)
@@ -91,35 +85,3 @@ def get_image(url):
         i,
     )
 
-
-def download_file(url, destination):
-    """
-    This will download whatever is on the internet at 'url' and save it to 'destination'.
-
-    Parameters
-    ----------
-    url : str
-        The URL to download from.
-    destination : str
-        The filesystem path (including file name) to download the file to.
-
-    Returns
-    -------
-    Tuple/None
-        (Source url, The path of the file that was downloaded) or None if download failed
-    """
-    destination = os.path.realpath(destination)
-    logger.info('Downloading data from {0} to {1}'.format(url, destination))
-    try:
-        page = request.urlopen(url)
-        if page.getcode() is not 200:
-            logger.info(
-                'Tried to download data from %s and got http response code %s',
-                url, str(page.getcode()))
-            return None
-        request.urlretrieve(url, destination)
-        return (url, destination)
-    except Exception as e:
-        logger.error('Error downloading data from {0} to {1}'.format(
-            url, destination))
-        return None
