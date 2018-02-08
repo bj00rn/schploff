@@ -37,7 +37,7 @@ def process_files(db_file, files, archive_path, temp_path):
                             of_name="{fn}.{ext}".format(fn=of_name, ext=image_format),
                         )
 
-                        upload_to_drive(archive_file, "0Byrk3xueZv-4cmtBb1cxdFY4WTg", './google_api/settings.yaml', '{fn}.{ext}'.format(fn=of_name, ext=image_fornat))
+                        upload_to_drive(archive_file, "0Byrk3xueZv-4cmtBb1cxdFY4WTg", './google_api/settings.yaml', '{fn}.{ext}'.format(fn=of_name, ext=image_format))
 
                         store.add(
                             hash=hexh,
@@ -54,7 +54,7 @@ def process_files(db_file, files, archive_path, temp_path):
                                 hash=hexh, filename=of_name))
 
             except Exception as e:
-                logger.error("failed to process [{hexh}] [{fn}]".format(hexh=hexh, fn=of_name))
+                logger.exception("failed to process [{hexh}] [{fn}]".format(hexh=hexh, fn=of_name))
 
 
 def upload_to_drive(source_file, target_path, settings_file, file_name=None):
@@ -64,7 +64,7 @@ def upload_to_drive(source_file, target_path, settings_file, file_name=None):
 
 def save_image(image, archive_path, file_name, ext='webp'):
     fn = os.path.join(archive_path, file_name)
-    image.save("{fn}.{ext}".format(fn=fn, ext=ext), ext)
+    image.save("{fn}.{ext}".format(fn=fn, ext=ext), ext, quality=50)
     return "{fn}.{ext}".format(fn=fn, ext=ext)
 
 
