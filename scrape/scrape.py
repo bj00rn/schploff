@@ -10,8 +10,6 @@ import argparse
 
 
 def main(argv):
-    dir = os.path.dirname(__file__)
-    os.chdir(dir)
     parser = argparse.ArgumentParser()
     parser.add_argument("archive_path")
     parser.add_argument("database")
@@ -28,7 +26,8 @@ def main(argv):
         sys.exit(1)
 
     if not os.path.isfile(os.path.realpath(aargs.database)):
-        logger.error("Invalid argument. Database [{}]".format(aargs.database))
+        logger.error("Invalid argument. Database [{}] does not exist".format(aargs.database))
+        sys.exit(1)
 
     logger.debug('program started')
 
@@ -42,7 +41,7 @@ def main(argv):
     if aargs.check_fi == 'True':
         files += FIBouySource().get_files()
 
-    process_files(db_file, files, archive_dir,
+    process_files(aargs.database, files, archive_dir,
                   aargs.upload_to_gdrive == 'True')
 
 
