@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 image_format = 'webp'
 
 
-def process_files(db_file, files, archive_path):
+def process_files(db_file, files, archive_path, upload_to_gdrive=False):
     with Store(db_file) as store:
         for (source_url, of_name, image_data) in files:
             try:
@@ -34,10 +34,11 @@ def process_files(db_file, files, archive_path):
 
                         fix_image_dates(archive_file)
 
-                        upload_to_drive(
-                            archive_file, "0Byrk3xueZv-4cmtBb1cxdFY4WTg",
-                            './google_api/settings.yaml', '{fn}.{ext}'.format(
-                                fn=of_name, ext=image_format))
+                        if upload_to_gdrive:
+                            upload_to_drive(
+                                archive_file, "0Byrk3xueZv-4cmtBb1cxdFY4WTg",
+                                './google_api/settings.yaml', '{fn}.{ext}'.format(
+                                    fn=of_name, ext=image_format))
 
                         store.add(
                             hash=hexh,
@@ -64,6 +65,7 @@ def upload_to_drive(source_file, target_path, settings_file, file_name=None):
 def save_image(image, archive_path, file_name, ext='webp'):
     fn = os.path.join(archive_path, file_name)
     image.save("{fn}.{ext}".format(fn=fn, ext=ext), ext)
+    logging.info("wrote [{fn}.{ext}]".format(fn=fn, ext=ext))
     return "{fn}.{ext}".format(fn=fn, ext=ext)
 
 
