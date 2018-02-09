@@ -2,8 +2,6 @@
 #
 # gexiv2 image Exif date fixer.
 # Corey Goldberg, 2014
-
-
 """Recursively scan a directory tree, fixing dates
 on all jpg/png image files.
 
@@ -15,13 +13,13 @@ Modifications are done in-place.
 Requires: gexiv2
 """
 
-
 import os
 import time
 
 # GObject-based wrapper around the Exiv2 library.
 # sudo apt-get install gir1.2-gexiv2-0.4
 # from gi.repository import GExiv2
+
 
 def fix_image_dates(img_path):
     t = os.path.getctime(img_path)
