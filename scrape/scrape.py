@@ -36,8 +36,6 @@ def main(argv):
 
     archive_dir = os.path.join(aargs.archive_path)
 
-    db_file = os.path.join(dir, 'scrape.sqlite3')
-
     files = DMISource().get_files() + SMHIBouySource().get_files(
     ) + FIForecastSource().get_files()
 
