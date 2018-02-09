@@ -5,25 +5,26 @@ import sys
 from util.download import process_files
 import logging
 import logging.config
-import shutil
 from util.image_source import FIBouySource, DMISource, SMHIBouySource, FIForecastSource
 import argparse
+
 
 def main(argv):
     dir = os.path.dirname(__file__)
     os.chdir(dir)
     parser = argparse.ArgumentParser()
-
     parser.add_argument("archive_path")
     parser.add_argument("database")
     parser.add_argument("upload_to_gdrive")
     parser.add_argument("check_fi")
 
-    aargs=parser.parse_args()
+    aargs = parser.parse_args()
     logger = logging.getLogger(__name__)
 
     if not os.path.isdir(os.path.realpath(aargs.archive_path)):
-        logger.error('Invalid argument. Archive path [{p}] does not exist'.format(p=aargs.archive_path))
+        logger.error(
+            'Invalid argument. Archive path [{p}] does not exist'.format(
+                p=aargs.archive_path))
         sys.exit(1)
 
     if not os.path.isfile(os.path.realpath(aargs.database)):
@@ -41,7 +42,8 @@ def main(argv):
     if aargs.check_fi == 'True':
         files += FIBouySource().get_files()
 
-    process_files(db_file, files, archive_dir, aargs.upload_to_gdrive == 'True')
+    process_files(db_file, files, archive_dir,
+                  aargs.upload_to_gdrive == 'True')
 
 
 logging.config.dictConfig({
