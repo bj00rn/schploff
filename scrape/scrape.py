@@ -10,6 +10,9 @@ import argparse
 
 
 def main(argv):
+    local_dir  = os.path.dirname(os.path.realpath(__file__))
+    os.chdir(local_dir)
+
     parser = argparse.ArgumentParser()
     parser.add_argument("archive_path")
     parser.add_argument("database")
@@ -69,4 +72,5 @@ logging.config.dictConfig({
 })
 
 if __name__ == "__main__":
+    print(os.path.realpath(__file__))
     main(sys.argv[1:])
