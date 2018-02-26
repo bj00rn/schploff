@@ -49,24 +49,25 @@ def set_photo(url, filename, paramList, outDir):
 
     font = ImageFont.truetype(
         "/usr/share/fonts/truetype/msttcorefonts/arial.ttf", fontsize)
-    draw.rectangle(((0, height - (fontsize + fontpadding) *
-                     len(paramList)), (width, height)), fill="black")
+    draw.rectangle(
+        ((0, height - (fontsize + fontpadding) * len(paramList)),
+         (width, height)),
+        fill="black")
     idx = 0
 
     for item in paramList:
         idx = idx + 1
-        draw.text((0, height - idx * (fontsize + fontpadding)),
-                  "{value} {unit} ({station} {updated} {parameter})".format(
-            value=item["value"],
-            station=item['station'],
-            unit=item['unit'],
-            updated="{:%F %H:%M:%S}".format(
-                datetime.fromtimestamp(item['updated'] / 1000)),
-            parameter=item['parameter']
-        ),
+        draw.text(
+            (0, height - idx * (fontsize + fontpadding)),
+            "{value} {unit} ({station} {updated} {parameter})".format(
+                value=item["value"],
+                station=item['station'],
+                unit=item['unit'],
+                updated="{:%F %H:%M:%S}".format(
+                    datetime.fromtimestamp(item['updated'] / 1000)),
+                parameter=item['parameter']),
             fontcolor,
-            font=font
-        )
+            font=font)
     newImage.save(os.path.join(outDir, filename), 'JPEG')
 
 
@@ -79,11 +80,17 @@ def fetchParameter(source, station, parameter, period):
         data = json.loads(response.read())
         # print(data)
         return {
-            'value': data["value"][-1]["value"],
-            'updated': data['updated'],
-            'parameter': (data["parameter"]["name"]).encode('ascii', 'ignore').decode('ascii'),
-            'unit': (data["parameter"]["unit"]).encode('ascii', 'ignore').decode('ascii'),
-            'station': (data['station']['name']).encode('ascii', 'ignore').decode('ascii')}
+            'value':
+            data["value"][-1]["value"],
+            'updated':
+            data['updated'],
+            'parameter': (data["parameter"]["name"]).encode(
+                'ascii', 'ignore').decode('ascii'),
+            'unit': (data["parameter"]["unit"]).encode(
+                'ascii', 'ignore').decode('ascii'),
+            'station':
+            (data['station']['name']).encode('ascii', 'ignore').decode('ascii')
+        }
     except:
         return {
             'value': 'Nan',
@@ -100,28 +107,37 @@ def main(argv):
     out_dir = argv[0]
 
     paramList = [
-        fetchParameter(station=87440, parameter=3,
-                       source='metobs', period='latest-hour'),
-        fetchParameter(station=87440, parameter=4,
-                       source='metobs', period='latest-hour'),
-        fetchParameter(station=33008, parameter=1, source='ocobs',
-                       period='latest-day'),  # Vaghöjd, signifikant 30 mi
-        fetchParameter(station=33008, parameter=9, source='ocobs',
-                       period='latest-day'),  # Vagperiod timvärde
+        fetchParameter(
+            station=87440, parameter=3, source='metobs', period='latest-hour'),
+        fetchParameter(
+            station=87440, parameter=4, source='metobs', period='latest-hour'),
+        fetchParameter(
+            station=33008, parameter=1, source='ocobs',
+            period='latest-day'),  # Vaghöjd, signifikant 30 mi
+        fetchParameter(
+            station=33008, parameter=9, source='ocobs',
+            period='latest-day'),  # Vagperiod timvärde
         # Vagriktning vid Tp (energimax 30 min)
-        fetchParameter(station=33008, parameter=8,
-                       source='ocobs', period='latest-day'),
-        fetchParameter(station=33002, parameter=1, source='ocobs',
-                       period='latest-day'),  # Vaghöjd, signifikant 30 mi
-        fetchParameter(station=33002, parameter=9, source='ocobs',
-                       period='latest-day'),  # Vagperiod timvärde
-        fetchParameter(station=33002, parameter=7, source='ocobs',
-                       period='latest-day'),  # Vagriktning timvärde
+        fetchParameter(
+            station=33008, parameter=8, source='ocobs', period='latest-day'),
+        fetchParameter(
+            station=33002, parameter=1, source='ocobs',
+            period='latest-day'),  # Vaghöjd, signifikant 30 mi
+        fetchParameter(
+            station=33002, parameter=9, source='ocobs',
+            period='latest-day'),  # Vagperiod timvärde
+        fetchParameter(
+            station=33002, parameter=7, source='ocobs',
+            period='latest-day'),  # Vagriktning timvärde
     ]
 
     #set_photo(url="http://83.140.123.183/ImageHarvester/Images/3009-landsort_1_live.jpg", filename="landsort_{0}.jpg".format(datestring), paramList=paramList)
-    set_photo(url="http://83.140.123.183/ImageHarvester/Images/3009-landsort_1_1280.jpg",
-              filename="landsort_{0}.jpg".format(datestring), paramList=paramList, outDir=out_dir)
+    set_photo(
+        url=
+        "http://83.140.123.183/ImageHarvester/Images/3009-landsort_1_1280.jpg",
+        filename="landsort_{0}.jpg".format(datestring),
+        paramList=paramList,
+        outDir=out_dir)
 
 
 if __name__ == "__main__":

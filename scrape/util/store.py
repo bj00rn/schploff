@@ -3,10 +3,12 @@
 
 import sqlite3 as lite
 import sys
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class Store():
-
     def __init__(self, db_file):
         self.con = lite.connect(db_file)
 
@@ -18,7 +20,7 @@ class Store():
 
     def get(self, hash):
         cur = self.con.cursor()
-        cur.execute('SELECT * from download where hash=?', (hash,))
+        cur.execute('SELECT * from download where hash=?', (hash, ))
         data = cur.fetchone()
         return data
 
@@ -27,16 +29,20 @@ class Store():
         cur.execute('insert into download values(?,?,?,?)',
                     (hash, timestamp, filename, file_class))
         self.con.commit()
+        logger.info("added [{hash}] [{filename}] to database".format(
+            hash=hash, filename=filename))
         return True
 
     def remove(self, hash):
         cur = self.con.cursor()
-        cur.execute("DELETE FROM download WHERE hash=?", (hash,))
+        cur.execute("DELETE FROM download WHERE hash=?", (hash, ))
         self.con.commit()
+        logger.info("deleted [{hash}] from database".format(hash=hash))
         return True
 
     def updated(self, file_class):
         cur = self.con.cursor()
         cur.execute(
-            "SELECT timestamp FROM download where fileclass=? ORDER BY timestamp DESC LIMIT 1", (file_class,))
+            "SELECT timestamp FROM download where fileclass=? ORDER BY timestamp DESC LIMIT 1",
+            (file_class, ))
         return cur.fetchone()
