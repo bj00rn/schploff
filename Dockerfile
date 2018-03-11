@@ -1,7 +1,13 @@
-FROM python:3.4-alpine
+#FROM python:3.4-alpine
+#FROM arm32v7/python:3
 
-ADD . /opt/surflog
-RUN apk add --no-cache build-base \
+FROM arm32v6/alpine
+
+RUN apk update && apk add build-base \
+ python \
+ py-setuptools \
+ py-pip \
+ python-dev \
  # Pillow dependencies
  jpeg-dev \
  zlib-dev \
@@ -15,12 +21,14 @@ RUN apk add --no-cache build-base \
  fribidi-dev \
  libwebp-dev
 
-RUN pip install -r /opt/surflog/requirements.txt
+ADD . /opt/surflog
+
+RUN pip install  -r /opt/surflog/requirements.txt
+
+RUN python /opt/surflog/pil_support.py
 
 RUN apk del build-base
 
-RUN python3 /opt/surflog/pil_support.py
-
 VOLUME ./archive /opt/surflog/archive
 
-CMD ["python3", "/opt/surflog/scrape/scrape.py", "/opt/surflog/"]
+CMD ["python", "/opt/surflog/scrape/scrape.py", "/opt/surflog/"]
