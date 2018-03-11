@@ -47,20 +47,20 @@ class SqliteStore():
         cur.execute('insert into download values(?,?,?,?)',
                     (hash, timestamp, filename, file_class))
         self.con.commit()
-        logger.info("added [{hash}] [{filename}] to database".format(
+        logger.info('added [{hash}] [{filename}] to database'.format(
             hash=hash, filename=filename))
         return True
 
     def remove(self, hash):
         cur = self.con.cursor()
-        cur.execute("DELETE FROM download WHERE hash=?", (hash, ))
+        cur.execute('DELETE FROM download WHERE hash=?', (hash, ))
         self.con.commit()
-        logger.info("deleted [{hash}] from database".format(hash=hash))
+        logger.info('deleted [{hash}] from database'.format(hash=hash))
         return True
 
     def updated(self, file_class):
         cur = self.con.cursor()
         cur.execute(
-            "SELECT timestamp FROM download where fileclass=? ORDER BY timestamp DESC LIMIT 1",
+            'SELECT timestamp FROM download where fileclass=? ORDER BY timestamp DESC LIMIT 1',
             (file_class, ))
         return cur.fetchone()

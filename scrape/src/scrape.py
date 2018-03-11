@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
+from datetime import datetime
 from util.download import process_files
 import logging
 import logging.config
@@ -14,12 +15,12 @@ def dir(path, permission=os.R_OK):
 
     if not os.path.isdir(real_path):
         raise argparse.ArgumentTypeError(
-            "{0} is not a valid path".format(real_path))
+            '{0} is not a valid path'.format(real_path))
     if os.access(real_path, permission):
         return real_path
     else:
         raise argparse.ArgumentTypeError(
-            "{0} insufficient permission".format(real_path))
+            '{0} insufficient permissions'.format(real_path))
 
 
 def writable_dir(path):
@@ -33,7 +34,7 @@ def readable_dir(path):
 def database(db_file_path):
     if not os.path.isfile(db_file_path):
         raise argparse.ArgumentTypeError(
-            "database {0} does not exist".format(db_file_path))
+            'database {0} does not exist'.format(db_file_path))
     return os.path.realpath(db_file_path)
 
 
@@ -41,25 +42,25 @@ def main(argv):
     local_dir = os.path.dirname(os.path.realpath(__file__))
     os.chdir(local_dir)
 
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(prog='Scrape')
     parser.add_argument(
-        "archivepath",
-        metavar='arcive path',
+        'archivepath',
+        metavar='archive path',
         type=writable_dir,
         help='archive path to copy images')
     parser.add_argument(
-        "--database",
+        '--database',
         dest='database',
         type=database,
         help='database to check downloaded files against')
     parser.add_argument(
-        "--upload-to-gdrive",
+        '--upload-to-gdrive',
         dest='upload_to_gdrive',
         default=False,
         nargs='?',
         help='upload files to google drive')
     parser.add_argument(
-        "--check-fi",
+        '--check-fi',
         dest='check_fi',
         action='store_true',
         help=
@@ -69,7 +70,8 @@ def main(argv):
     aargs = parser.parse_args()
     logger = logging.getLogger(__name__)
 
-    logger.debug('program started')
+    logger.info('Program started {0}'.format('{:%F_%H-%M-%S}'.format(
+        datetime.now())))
 
     files = DMISource().get_files() + SMHIBouySource().get_files(
     ) + FIForecastSource().get_files()
@@ -104,5 +106,5 @@ logging.config.dictConfig({
     }
 })
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main(sys.argv[1:])

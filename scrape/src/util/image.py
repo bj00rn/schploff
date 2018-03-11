@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 def replace_transparency(im, bg_colour=(255, 255, 255)):
     try:
-        bg = Image.new("RGB", im.size, bg_colour + (255, ))
+        bg = Image.new('RGB', im.size, bg_colour + (255, ))
         # Only process if image has transparency (http://stackoverflow.com/a/1963146)
         if im.mode in ('RGBA', 'LA', 'P') or (im.mode == 'P'
                                               and 'transparency' in im.info):
@@ -35,33 +35,33 @@ def main(argv):
     inputfile = ''
     outputfile = ''
     try:
-        opts, args = getopt.getopt(argv, "hi:o:", ["ifile=", "ofile="])
+        opts, args = getopt.getopt(argv, 'hi:o:', ['ifile=', 'ofile='])
     except getopt.GetoptError:
         print('test.py -i <inputfile> -o <outputfile>')
         sys.exit(2)
     for opt, arg in opts:
-        if opt in ("-i", "-ifile"):
+        if opt in ('-i', '-ifile'):
             print('inputfile is ', arg)
             inputfile = arg
-        if opt in ("-o", "-ofile"):
+        if opt in ('-o', '-ofile'):
             print('outputfile is ', arg)
             outputfile = arg
 
     try:
         im = Image.open(inputfile)
     except Exception as e:
-        print("can't open {fn}".format(fn=inputfile))
+        print('cant open {fn}'.format(fn=inputfile))
 
     try:
         replace_transparency(im, (255, 255, 255))
     except Exception as e:
-        print("error processing {fn}".format(fn=inputfile))
+        print('error processing {fn}'.format(fn=inputfile))
 
     try:
         im.save(outputfile)
     except Exception as e:
-        print("error writing to {fn}".format(fn=outputfile))
+        print('error writing to {fn}'.format(fn=outputfile))
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main(sys.argv[1:])

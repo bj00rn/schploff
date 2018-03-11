@@ -39,7 +39,7 @@ class GDStore:
             return file1
         except Exception as e:
             logger(
-                "failed to upload [{fn}] to google drive".format(fn=file_path))
+                'failed to upload [{fn}] to google drive'.format(fn=file_path))
 
     def connect(self):
         try:
@@ -63,5 +63,5 @@ class GDStore:
             self.gauth.SaveCredentialsFile(
                 self.config['save_credentials_file'])
         except Exception as e:
-            logger.error("failed to connect to google drive")
+            logger.error('failed to connect to google drive')
             raise e

@@ -29,14 +29,14 @@ def process_files(db_file, files, archive_path, upload_to_gdrive=False):
                             processed_image, archive_path,
                             "{fn}_{date}".format(
                                 fn=of_name,
-                                date="{:%F_%H-%M-%S}".format(datetime.now()),
+                                date='{:%F_%H-%M-%S}'.format(datetime.now()),
                                 ext=image_format), image_format)
 
                         fix_image_dates(archive_file)
 
                         if upload_to_gdrive:
                             upload_to_drive(archive_file,
-                                            "0Byrk3xueZv-4cmtBb1cxdFY4WTg",
+                                            '0Byrk3xueZv-4cmtBb1cxdFY4WTg',
                                             './google_api/settings.yaml',
                                             '{fn}.{ext}'.format(
                                                 fn=of_name, ext=image_format))
@@ -45,15 +45,15 @@ def process_files(db_file, files, archive_path, upload_to_gdrive=False):
                             hash=hexh,
                             timestamp=time.mktime(datetime.now().timetuple()),
                             filename=os.path.basename(archive_file),
-                            file_class="n/a")
+                            file_class='n/a')
 
                     else:
                         logger.info(
-                            "skipping [{hash}[ [{filename}] already in db".
+                            'skipping [{hash}[ [{filename}] already in db'.
                             format(hash=hexh, filename=of_name))
 
             except Exception as e:
-                logger.exception("failed to process [{hexh}] [{fn}]".format(
+                logger.exception('failed to process [{hexh}] [{fn}]'.format(
                     hexh=hexh, fn=of_name))
 
 
@@ -65,9 +65,9 @@ def upload_to_drive(source_file, target_path, settings_file, file_name=None):
 
 def save_image(image, archive_path, file_name, ext='webp'):
     fn = os.path.join(archive_path, file_name)
-    image.save("{fn}.{ext}".format(fn=fn, ext=ext), ext)
-    logging.info("wrote [{fn}.{ext}]".format(fn=fn, ext=ext))
-    return "{fn}.{ext}".format(fn=fn, ext=ext)
+    image.save('{fn}.{ext}'.format(fn=fn, ext=ext), ext)
+    logging.info('wrote [{fn}.{ext}]'.format(fn=fn, ext=ext))
+    return '{fn}.{ext}'.format(fn=fn, ext=ext)
 
 
 def process_image(image_data):

@@ -48,22 +48,22 @@ def set_photo(url, filename, paramList, outDir):
     print(x1, y1, x2, y2)
 
     font = ImageFont.truetype(
-        "/usr/share/fonts/truetype/msttcorefonts/arial.ttf", fontsize)
+        '/usr/share/fonts/truetype/msttcorefonts/arial.ttf', fontsize)
     draw.rectangle(
         ((0, height - (fontsize + fontpadding) * len(paramList)),
          (width, height)),
-        fill="black")
+        fill='black')
     idx = 0
 
     for item in paramList:
         idx = idx + 1
         draw.text(
             (0, height - idx * (fontsize + fontpadding)),
-            "{value} {unit} ({station} {updated} {parameter})".format(
-                value=item["value"],
+            '{value} {unit} ({station} {updated} {parameter})'.format(
+                value=item['value'],
                 station=item['station'],
                 unit=item['unit'],
-                updated="{:%F %H:%M:%S}".format(
+                updated='{:%F %H:%M:%S}'.format(
                     datetime.fromtimestamp(item['updated'] / 1000)),
                 parameter=item['parameter']),
             fontcolor,
@@ -72,21 +72,21 @@ def set_photo(url, filename, paramList, outDir):
 
 
 def fetchParameter(source, station, parameter, period):
-    url = "https://opendata-download-{source}.smhi.se/api/version/latest/parameter/{parameter}/station/{station}/period/{period}/data.json".format(
+    url = 'https://opendata-download-{source}.smhi.se/api/version/latest/parameter/{parameter}/station/{station}/period/{period}/data.json'.format(
         station=station, parameter=parameter, source=source, period=period)
     try:
-        print("fetching {url} ... ".format(url=url))
+        print('fetching {url} ... '.format(url=url))
         response = urllib.urlopen(url)
         data = json.loads(response.read())
         # print(data)
         return {
             'value':
-            data["value"][-1]["value"],
+            data['value'][-1]['value'],
             'updated':
             data['updated'],
-            'parameter': (data["parameter"]["name"]).encode(
+            'parameter': (data['parameter']['name']).encode(
                 'ascii', 'ignore').decode('ascii'),
-            'unit': (data["parameter"]["unit"]).encode(
+            'unit': (data['parameter']['unit']).encode(
                 'ascii', 'ignore').decode('ascii'),
             'station':
             (data['station']['name']).encode('ascii', 'ignore').decode('ascii')
@@ -103,7 +103,7 @@ def fetchParameter(source, station, parameter, period):
 
 def main(argv):
     date = datetime.now()
-    datestring = ("{:%F_%H-%M-%S}".format(date))
+    datestring = ('{:%F_%H-%M-%S}'.format(date))
     out_dir = argv[0]
 
     paramList = [
@@ -131,14 +131,14 @@ def main(argv):
             period='latest-day'),  # Vagriktning timvärde
     ]
 
-    #set_photo(url="http://83.140.123.183/ImageHarvester/Images/3009-landsort_1_live.jpg", filename="landsort_{0}.jpg".format(datestring), paramList=paramList)
+    #set_photo(url='http://83.140.123.183/ImageHarvester/Images/3009-landsort_1_live.jpg', filename='landsort_{0}.jpg'.format(datestring), paramList=paramList)
     set_photo(
         url=
-        "http://83.140.123.183/ImageHarvester/Images/3009-landsort_1_1280.jpg",
-        filename="landsort_{0}.jpg".format(datestring),
+        'http://83.140.123.183/ImageHarvester/Images/3009-landsort_1_1280.jpg',
+        filename='landsort_{0}.jpg'.format(datestring),
         paramList=paramList,
         outDir=out_dir)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main(sys.argv[1:])
