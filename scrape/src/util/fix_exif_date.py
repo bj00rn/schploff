@@ -30,7 +30,7 @@ def fix_image_dates(img_path):
     #    exif_data['Exif.Photo.DateTimeDigitized'] = ctime
     #    exif_data['Exif.Photo.DateTimeOriginal'] = ctime
     #    exif_data.save_file()
-    #except:
+    # except:
     #    print("error setting exif data")
     os.utime(img_path, (t, t))
 

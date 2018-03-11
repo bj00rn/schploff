@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
-import sys, getopt
+import sys
+import getopt
 from PIL import Image
 import logging
 
