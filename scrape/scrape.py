@@ -41,10 +41,10 @@ def main(argv):
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--archive-path",
-        dest='archive_path',
+        "archivepath",
+        metavar='arcive path',
         type=writable_dir,
-        help='arhive path to copy images')
+        help='archive path to copy images')
     parser.add_argument(
         "--database",
         dest='database',
@@ -59,9 +59,7 @@ def main(argv):
     parser.add_argument(
         "--check-fi",
         dest='check_fi',
-        type=bool,
-        default=True,
-        nargs='?',
+        action='store_true',
         help=
         'get finnish wave bouy observations (generates a new image on every run)'
     )
@@ -77,7 +75,7 @@ def main(argv):
     if aargs.check_fi:
         files += FIBouySource().get_files()
 
-    process_files(aargs.database, files, aargs.archive_path,
+    process_files(aargs.database, files, aargs.archivepath,
                   aargs.upload_to_gdrive)
 
 
