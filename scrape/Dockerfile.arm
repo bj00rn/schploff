@@ -1,7 +1,7 @@
 #FROM python:3.4-alpine
-FROM arm32v7/python:3
+#FROM arm32v7/python:3
 
-#FROM arm32v6/alpine
+FROM arm32v6/alpine
 
 RUN apk update && apk add build-base \
  python \
@@ -33,4 +33,4 @@ ADD ./src /opt/surflog
 
 RUN python /opt/surflog/pil_support.py
 
-ENTRYPOINT ["python", "/opt/surflog/scrape/scrape.py"]
+ENTRYPOINT ["python", "/opt/surflog/scrape.py"]

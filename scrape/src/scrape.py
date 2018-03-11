@@ -10,14 +10,14 @@ import argparse
 
 
 def dir(path, permission=os.R_OK):
-    real_path = os.path.abspath(path)
+    real_path = path
 
     if not os.path.isdir(real_path):
-        raise Exception("{0} is not a valid path".format(real_path))
+        raise argparse.ArgumentTypeError("{0} is not a valid path".format(real_path))
     if os.access(real_path, permission):
         return real_path
     else:
-        raise Exception("{0} insufficient permission".format(real_path))
+        raise argparse.ArgumentTypeError("{0} insufficient permission".format(real_path))
 
 
 def writable_dir(path):
