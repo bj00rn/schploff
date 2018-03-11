@@ -21,7 +21,9 @@ RUN apk update && apk add build-base \
  fribidi-dev \
  libwebp-dev
 
-ADD . /opt/surflog
+ADD requirements.txt /opt/surflog
+
+ADD src /opt/surflog
 
 RUN pip install  -r /opt/surflog/requirements.txt
 
