@@ -9,41 +9,76 @@ from util.image_source import FIBouySource, DMISource, SMHIBouySource, FIForecas
 import argparse
 
 
+def dir(path, permission=os.R_OK):
+    real_path = os.path.abspath(path)
+
+    if not os.path.isdir(real_path):
+        raise Exception("{0} is not a valid path".format(real_path))
+    if os.access(real_path, permission):
+        return real_path
+    else:
+        raise Exception("{0} insufficient permission".format(real_path))
+
+
+def writable_dir(path):
+    return dir(path=path, permission=os.W_OK)
+
+
+def readable_dir(path):
+    return dir(path=path)
+
+
+def database(db_file_path):
+    if not os.path.isfile(db_file_path):
+        raise argparse.ArgumentTypeError(
+            "database {0} does not exist".format(db_file_path))
+    return os.path.realpath(db_file_path)
+
+
 def main(argv):
-    local_dir  = os.path.dirname(os.path.realpath(__file__))
+    local_dir = os.path.dirname(os.path.realpath(__file__))
     os.chdir(local_dir)
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("archive_path")
-    parser.add_argument("database")
-    parser.add_argument("upload_to_gdrive")
-    parser.add_argument("check_fi")
+    parser.add_argument(
+        "--archive-path",
+        dest='archive_path',
+        type=writable_dir,
+        help='arhive path to copy images')
+    parser.add_argument(
+        "--database",
+        dest='database',
+        type=database,
+        help='database to check downloaded files against')
+    parser.add_argument(
+        "--upload-to-gdrive",
+        dest='upload_to_gdrive',
+        default=False,
+        nargs='?',
+        help='upload files to google drive')
+    parser.add_argument(
+        "--check-fi",
+        dest='check_fi',
+        type=bool,
+        default=True,
+        nargs='?',
+        help=
+        'get finnish wave bouy observations (generates a new image on every run)'
+    )
 
     aargs = parser.parse_args()
     logger = logging.getLogger(__name__)
 
-    if not os.path.isdir(os.path.realpath(aargs.archive_path)):
-        logger.error(
-            'Invalid argument. Archive path [{p}] does not exist'.format(
-                p=aargs.archive_path))
-        sys.exit(1)
-
-    if not os.path.isfile(os.path.realpath(aargs.database)):
-        logger.error("Invalid argument. Database [{}] does not exist".format(aargs.database))
-        sys.exit(1)
-
     logger.debug('program started')
-
-    archive_dir = os.path.join(aargs.archive_path)
 
     files = DMISource().get_files() + SMHIBouySource().get_files(
     ) + FIForecastSource().get_files()
 
-    if aargs.check_fi == 'True':
+    if aargs.check_fi:
         files += FIBouySource().get_files()
 
-    process_files(aargs.database, files, archive_dir,
-                  aargs.upload_to_gdrive == 'True')
+    process_files(aargs.database, files, aargs.archive_path,
+                  aargs.upload_to_gdrive)
 
 
 logging.config.dictConfig({
@@ -70,5 +105,4 @@ logging.config.dictConfig({
 })
 
 if __name__ == "__main__":
-    print(os.path.realpath(__file__))
     main(sys.argv[1:])

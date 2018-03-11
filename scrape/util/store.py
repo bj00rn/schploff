@@ -8,7 +8,25 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class Store():
+class NoStore():
+    def __init__(self):
+        logger.warning('No database specified')
+        pass
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        pass
+
+    def get(self, *arg, **kwargs):
+        return None
+
+    def add(self, *args, **kwargs):
+        return True
+
+
+class SqliteStore():
     def __init__(self, db_file):
         self.con = lite.connect(db_file)
 

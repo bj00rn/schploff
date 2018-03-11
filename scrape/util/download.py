@@ -2,7 +2,7 @@ import os
 from requests import get
 import hashlib
 from .fix_exif_date import fix_image_dates
-from .store import Store
+from .store import SqliteStore, NoStore
 from .gdStore import GDStore
 from .image import replace_transparency
 import logging
@@ -15,7 +15,7 @@ image_format = 'webp'
 
 
 def process_files(db_file, files, archive_path, upload_to_gdrive=False):
-    with Store(db_file) as store:
+    with SqliteStore(db_file) if db_file is not None else NoStore() as store:
         for (source_url, of_name, image_data) in files:
             try:
                 with replace_transparency(image_data) as im:
