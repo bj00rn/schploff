@@ -29,6 +29,4 @@ RUN python /opt/surflog/pil_support.py
 
 RUN apk del build-base
 
-VOLUME ./archive /opt/surflog/archive
-
-CMD ["python", "/opt/surflog/scrape/scrape.py", "/opt/surflog/"]
+ENTRYPOINT ["python", "/opt/surflog/scrape/scrape.py"]

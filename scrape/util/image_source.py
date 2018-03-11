@@ -4,7 +4,7 @@ from requests import get
 from io import BytesIO
 
 
-class ImageSource:
+class ImageSource(object):
     base_url = None
     base_fn = None
 
@@ -38,7 +38,7 @@ class MultiSource(ImageSource):
         return sources
 
     def __init__(self):
-        super().__init__()
+        super(MultiSource, self).__init__()
 
 
 class DMISource(MultiSource):
@@ -54,7 +54,7 @@ class DMISource(MultiSource):
 
 
 def __init__(self):
-    super().__init__()
+    super(MultiSource, self).__init__()
 
 
 class SMHIBouySource(MultiSource):
@@ -67,7 +67,7 @@ class SMHIBouySource(MultiSource):
     ]
 
     def __init__(self):
-        super().__init__()
+        super(SMHIBouySource, self).__init__()
 
 
 class FIBouySource(ImageSource):
@@ -75,7 +75,7 @@ class FIBouySource(ImageSource):
     base_fn = "fi_bouy_northern_baltic"
 
     def __init__(self):
-        super().__init__()
+        super(FIBouySource, self).__init__()
 
 
 class FIForecastSource(ImageSource):
@@ -83,4 +83,4 @@ class FIForecastSource(ImageSource):
     base_fn = "fi_forecast_significant_wave_height"
 
     def __init__(self):
-        super().__init__()
+        super(FIForecastSource, self).__init__()
