@@ -4,6 +4,7 @@
 FROM arm32v6/alpine
 
 RUN apk update && apk add build-base \
+ tzdata \
  python \
  py-setuptools \
  py-pip \
@@ -32,5 +33,7 @@ RUN apk del build-base
 ADD ./src /opt/surflog
 
 RUN python /opt/surflog/pil_support.py
+
+#RUN echo '*  *  *  *  *    /opt/surflog/scrape.py /opt/archive ' > /etc/crontabs/root
 
 ENTRYPOINT ["python", "/opt/surflog/scrape.py"]

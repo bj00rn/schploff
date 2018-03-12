@@ -1,0 +1,12 @@
+version: '3'
+services:
+ scrape:
+  container_name: scrape_cron
+  build:
+    context: .
+    dockerfile: Dockerfile.arm
+  entrypoint: /opt/surflog/scrape_cron.sh "* * * * *" "/opt/surflog/host/archive --database /opt/surflog/host/scrape/scrape.sqlite3 --upload-to-gdrive"
+  volumes:
+    - /home/pi/surflog:/opt/surflog/host:rw
+  environment:
+    - TZ=Europe/Stockholm

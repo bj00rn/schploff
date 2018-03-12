@@ -17,7 +17,7 @@ class ImageSource(object):
             try:
                 logging.info('downloading {url}'.format(url=url))
                 files.append((url, of, Image.open(BytesIO(get(url).content))))
-            except Exception as e:
+            except Exception:
                 logging.exception('failed to download {url}'.format(url=url))
         return files
 
@@ -28,7 +28,7 @@ class ImageSource(object):
 class MultiSource(ImageSource):
     base_url = None
     base_fn = None
-    expr_list = None
+    expr_list = []
 
     def get_sources(self):
         sources = []

@@ -56,8 +56,7 @@ def main(argv):
     parser.add_argument(
         '--upload-to-gdrive',
         dest='upload_to_gdrive',
-        default=False,
-        nargs='?',
+        action='store_true',
         help='upload files to google drive')
     parser.add_argument(
         '--check-fi',
