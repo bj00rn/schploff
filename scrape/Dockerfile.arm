@@ -32,6 +32,8 @@ RUN apk del build-base
 
 ADD ./src /opt/surflog
 
+ADD ./crons/scrape_all /etc/periodic/hourly/
+
 RUN python /opt/surflog/pil_support.py
 
 #RUN echo '*  *  *  *  *    /opt/surflog/scrape.py /opt/archive ' > /etc/crontabs/root

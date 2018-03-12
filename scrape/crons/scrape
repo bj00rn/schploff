@@ -1,0 +1,3 @@
+#/bin/sh
+
+./opt/surflog/scrape.py /opt/surflog/host/archive --database /opt/surflog/host/scrape/scrape.sqlite3 --upload-to-gdrive
