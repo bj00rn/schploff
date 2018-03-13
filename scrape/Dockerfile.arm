@@ -30,12 +30,21 @@ RUN pip install -r /opt/surflog/requirements.txt
 
 RUN apk del build-base
 
-ADD ./src /opt/surflog
+# Setup crons
+RUN mkdir -p /etc/periodic/45m
+RUN mkdir -p /etc/periodic/23h
+RUN mkdir -p /etc/periodic/minutely
 
-ADD ./crons/scrape_all /etc/periodic/hourly/
+RUN echo '*   *    *  *  *    run-parts /etc/periodic/minutely' >>/etc/crontabs/root
+RUN echo '45  *    *  *  *    run-parts /etc/periodic/45m' >> /etc/crontabs/root
+RUN echo '*   23   *  *  *    run-parts /etc/periodic/23h' >> /etc/crontabs/root
+
+ADD ./crons/scrape /etc/periodic/45m/
+ADD ./crons/scrape_all /etc/periodic/23h/
+
+# Add source as late as possible to optimize build
+ADD ./src /opt/surflog
 
 RUN python /opt/surflog/pil_support.py
 
-#RUN echo '*  *  *  *  *    /opt/surflog/scrape.py /opt/archive ' > /etc/crontabs/root
-
-ENTRYPOINT ["python", "/opt/surflog/scrape.py"]
+ENTRYPOINT ["python", "/opt/surflog/scrape.py", "/opt/surflog", "--check-fi"]

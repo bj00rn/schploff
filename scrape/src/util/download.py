@@ -38,8 +38,11 @@ def process_files(db_file, files, archive_path, upload_to_gdrive=False):
                             upload_to_drive(archive_file,
                                             '0Byrk3xueZv-4cmtBb1cxdFY4WTg',
                                             './google_api/settings.yaml',
-                                            '{fn}.{ext}'.format(
-                                                fn=of_name, ext=image_format))
+                                            '{fn}_{date}.{ext}'.format(
+                                                fn=of_name,
+                                                date='{:%F_%H-%M-%S}'.format(
+                                                    datetime.now()),
+                                                ext=image_format))
 
                         store.add(
                             hash=hexh,

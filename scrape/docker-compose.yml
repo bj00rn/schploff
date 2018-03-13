@@ -5,8 +5,8 @@ services:
   build:
     context: .
     dockerfile: Dockerfile.arm
-#  entrypoint: /opt/surflog/scrape_cron.sh "* * * * *" "/opt/surflog/host/archive --database /opt/surflog/host/scrape/scrape.sqlite3 --upload-to-gdrive"
-  entrypoint: crond -f -l 2
+#   dockerfile: Dockerfile.amd64
+  entrypoint: crond -f -l 2 -L /dev/stdout
   volumes:
     - /home/pi/surflog:/opt/surflog/host:rw
   environment:

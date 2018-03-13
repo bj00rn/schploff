@@ -1,3 +1,2 @@
-#/bin/sh
-
-./opt/surflog/scrape.py /opt/surflog/host/archive --database /opt/surflog/host/scrape/scrape.sqlite3 --upload-to-gdrive
+#!/bin/sh
+python /opt/surflog/scrape.py --database /opt/surflog/host/scrape/scrape.sqlite3  --upload-to-gdrive  /opt/surflog/host/archive  > /dev/stdout 2>&1
