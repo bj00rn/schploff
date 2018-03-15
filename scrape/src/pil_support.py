@@ -1,4 +1,4 @@
-from PIL.features import get_supported_modules
+from PIL import features
 
 print('Pillow was built with following modules: {}'.format(
-    repr(get_supported_modules())))
+    repr(features.get_supported())))

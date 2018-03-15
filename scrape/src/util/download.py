@@ -76,7 +76,7 @@ def upload_to_drive(source_file, target_path, settings_file, file_name=None):
 def save_image(image, archive_path, file_name, ext='webp', exif=None):
     fn = os.path.join(archive_path, file_name)
     image.save('{fn}.{ext}'.format(fn=fn, ext=ext), exif=exif)
-    logging.info('wrote [{fn}.{ext}]'.format(fn=fn, ext=ext))
+    logging.info('Wrote [{fn}.{ext}]'.format(fn=fn, ext=ext))
     return '{fn}.{ext}'.format(fn=fn, ext=ext)
 
 

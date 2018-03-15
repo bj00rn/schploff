@@ -15,10 +15,10 @@ class ImageSource(object):
         files = []
         for url, of in self.get_sources():
             try:
-                logging.info('downloading {url}'.format(url=url))
+                logging.info('Getting [{url}]'.format(url=url))
                 files.append((url, of, Image.open(BytesIO(get(url).content))))
             except Exception:
-                logging.exception('failed to download {url}'.format(url=url))
+                logging.exception('Failed to get [{url}]'.format(url=url))
         return files
 
     def __init__(self):
