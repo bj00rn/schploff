@@ -38,8 +38,8 @@ def generate_exif_data(image, createDate):
     return piexif.dump(exif_dict)
 
 
-def fix_image_dates(img_path):
-    t = os.path.getctime(img_path)
+def fix_image_dates(img_path, date_to_set):
+    t = date_to_set.timestamp()
     os.utime(img_path, (t, t))
 
 

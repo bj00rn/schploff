@@ -39,7 +39,7 @@ def process_files(db_file, files, archive_path, upload_to_gdrive=False):
                                 image_date,
                             ))
 
-                        fix_image_dates(archive_file)
+                        fix_image_dates(archive_file, image_date)
 
                         if upload_to_gdrive:
                             upload_to_drive(
