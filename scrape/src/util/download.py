@@ -1,7 +1,7 @@
 import os
 from requests import get
 import hashlib
-from .fix_exif_date import fix_image_dates
+from .fix_exif_date import fix_image_dates, generate_exif_data
 from .store import SqliteStore, NoStore
 from .gdStore import GDStore
 from .image import replace_transparency
@@ -23,30 +23,37 @@ def process_files(db_file, files, archive_path, upload_to_gdrive=False):
 
                     # process the file if not already in db
                     if store.get(hexh) is None:
+                        image_date = datetime.now()
                         processed_image = process_image(im)
 
                         archive_file = save_image(
-                            processed_image, archive_path,
+                            processed_image,
+                            archive_path,
                             "{fn}_{date}".format(
                                 fn=of_name,
-                                date='{:%F_%H-%M-%S}'.format(datetime.now()),
-                                ext=image_format), image_format)
+                                date='{:%F_%H-%M-%S}'.format(image_date),
+                                ext=image_format,
+                            ),
+                            exif=generate_exif_data(
+                                processed_image,
+                                image_date,
+                            ))
 
                         fix_image_dates(archive_file)
 
                         if upload_to_gdrive:
-                            upload_to_drive(archive_file,
-                                            '0Byrk3xueZv-4cmtBb1cxdFY4WTg',
-                                            './google_api/settings.yaml',
-                                            '{fn}_{date}.{ext}'.format(
-                                                fn=of_name,
-                                                date='{:%F_%H-%M-%S}'.format(
-                                                    datetime.now()),
-                                                ext=image_format))
+                            upload_to_drive(
+                                archive_file, '0Byrk3xueZv-4cmtBb1cxdFY4WTg',
+                                './google_api/settings.yaml',
+                                '{fn}_{date}.{ext}'.format(
+                                    fn=of_name,
+                                    date='{:%F_%H-%M-%S}'.format(image_date),
+                                    ext=image_format,
+                                ))
 
                         store.add(
                             hash=hexh,
-                            timestamp=time.mktime(datetime.now().timetuple()),
+                            timestamp=time.mktime(image_date.timetuple()),
                             filename=os.path.basename(archive_file),
                             file_class='n/a')
 
@@ -66,9 +73,9 @@ def upload_to_drive(source_file, target_path, settings_file, file_name=None):
     return gd.upload(source_file, file_name, 'test')
 
 
-def save_image(image, archive_path, file_name, ext='webp'):
+def save_image(image, archive_path, file_name, ext='webp', exif=None):
     fn = os.path.join(archive_path, file_name)
-    image.save('{fn}.{ext}'.format(fn=fn, ext=ext), ext)
+    image.save('{fn}.{ext}'.format(fn=fn, ext=ext), exif=exif)
     logging.info('wrote [{fn}.{ext}]'.format(fn=fn, ext=ext))
     return '{fn}.{ext}'.format(fn=fn, ext=ext)
 

@@ -15,23 +15,31 @@ Requires: gexiv2
 
 import os
 import time
+import piexif
 
-# GObject-based wrapper around the Exiv2 library.
-# sudo apt-get install gir1.2-gexiv2-0.4
-# from gi.repository import GExiv2
+from PIL import Image
+
+
+def generate_exif_data(image, createDate):
+    date_str = u'{:%Y:%m:%d %H:%M:%S}'.format(createDate)
+    w, h = image.size
+
+    exif_dict = {
+        "0th": {
+            piexif.ImageIFD.XResolution: (w, 1),
+            piexif.ImageIFD.YResolution: (h, 1),
+            piexif.ImageIFD.DateTime: date_str,
+        },
+        "Exif": {
+            piexif.ExifIFD.DateTimeOriginal: date_str,
+            piexif.ExifIFD.DateTimeDigitized: date_str,
+        },
+    }
+    return piexif.dump(exif_dict)
 
 
 def fix_image_dates(img_path):
     t = os.path.getctime(img_path)
-    # ctime = time.strftime('%Y:%m:%d %H:%M:%S', time.localtime(t))
-    # try:
-    #    exif_data = GExiv2.Metadata(img_path)
-    #    exif_data['Exif.Image.DateTime'] = ctime
-    #    exif_data['Exif.Photo.DateTimeDigitized'] = ctime
-    #    exif_data['Exif.Photo.DateTimeOriginal'] = ctime
-    #    exif_data.save_file()
-    # except:
-    #    print('error setting exif data')
     os.utime(img_path, (t, t))
 
 
