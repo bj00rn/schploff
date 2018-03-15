@@ -37,6 +37,11 @@ def process_files(db_file, files, archive_path, upload_to_gdrive=False):
                             exif=generate_exif_data(
                                 processed_image,
                                 image_date,
+                                comment="{fn}_{date}".format(
+                                    fn=of_name,
+                                    date='{:%F_%H-%M-%S}'.format(image_date),
+                                    ext=image_format,
+                                ),
                             ))
 
                         fix_image_dates(archive_file, image_date)
@@ -75,7 +80,7 @@ def upload_to_drive(source_file, target_path, settings_file, file_name=None):
 
 def save_image(image, archive_path, file_name, ext='webp', exif=None):
     fn = os.path.join(archive_path, file_name)
-    image.save('{fn}.{ext}'.format(fn=fn, ext=ext), exif=exif)
+    image.save('{fn}.{ext}'.format(fn=fn, ext=ext))  # no exif for now
     logging.info('Wrote [{fn}.{ext}]'.format(fn=fn, ext=ext))
     return '{fn}.{ext}'.format(fn=fn, ext=ext)
 
