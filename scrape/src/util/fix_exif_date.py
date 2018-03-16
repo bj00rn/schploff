@@ -17,7 +17,23 @@ import os
 import time
 import piexif
 
+import subprocess
+
 from PIL import Image
+import logging
+logger = logging.getLogger(__name__)
+
+
+def set_exif_shell(filename, createDate, comment):
+    date_str = u'{:%Y:%m:%d %H:%M:%S}'.format(createDate)
+    try:
+        subprocess.call([
+            "exiv2", "-M",
+            'set Exif.Image.DateTimeOriginal {d}'.format(d=date_str), filename
+        ])
+    except Exception as e:
+        logger.exception(
+            "Failed to set exif data using shell, is exiv2 installed?")
 
 
 def generate_exif_data(image, createDate, comment=''):

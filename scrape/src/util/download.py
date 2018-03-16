@@ -1,7 +1,7 @@
 import os
 from requests import get
 import hashlib
-from .fix_exif_date import fix_image_dates, generate_exif_data
+from .fix_exif_date import fix_image_dates, generate_exif_data, set_exif_shell
 from .store import SqliteStore, NoStore
 from .gdStore import GDStore
 from .image import replace_transparency
@@ -25,41 +25,35 @@ def process_files(db_file, files, archive_path, upload_to_gdrive=False):
                     if store.get(hexh) is None:
                         image_date = datetime.now()
                         processed_image = process_image(im)
+                        image_fn = "{fn}_{date}.{ext}".format(
+                            fn=of_name,
+                            date='{:%F_%H-%M-%S}'.format(image_date),
+                            ext=image_format,
+                        )
 
                         archive_file = save_image(
                             processed_image,
                             archive_path,
-                            "{fn}_{date}".format(
-                                fn=of_name,
-                                date='{:%F_%H-%M-%S}'.format(image_date),
-                                ext=image_format,
-                            ),
-                            exif=generate_exif_data(
-                                processed_image,
-                                image_date,
-                                comment="{fn}_{date}".format(
-                                    fn=of_name,
-                                    date='{:%F_%H-%M-%S}'.format(image_date),
-                                    ext=image_format,
-                                ),
-                            ))
+                            image_fn,
+                        )
+
+                        set_exif_shell(
+                            archive_file, image_date, comment=image_fn)
 
                         fix_image_dates(archive_file, image_date)
 
                         if upload_to_gdrive:
                             upload_to_drive(
-                                archive_file, '0Byrk3xueZv-4cmtBb1cxdFY4WTg',
-                                './google_api/settings.yaml',
-                                '{fn}_{date}.{ext}'.format(
-                                    fn=of_name,
-                                    date='{:%F_%H-%M-%S}'.format(image_date),
-                                    ext=image_format,
-                                ))
+                                source_file=archive_file,
+                                target_path='0Byrk3xueZv-4cmtBb1cxdFY4WTg',
+                                settings_file='./google_api/settings.yaml',
+                                file_name=image_fn,
+                                description=image_fn)
 
                         store.add(
                             hash=hexh,
                             timestamp=time.mktime(image_date.timetuple()),
-                            filename=os.path.basename(archive_file),
+                            filename=archive_file,
                             file_class='n/a')
 
                     else:
@@ -72,17 +66,22 @@ def process_files(db_file, files, archive_path, upload_to_gdrive=False):
                     hexh=hexh, fn=of_name))
 
 
-def upload_to_drive(source_file, target_path, settings_file, file_name=None):
+def upload_to_drive(source_file,
+                    target_path,
+                    settings_file,
+                    file_name,
+                    description=''):
     gd = GDStore(target_path, settings_file)
     gd.connect()
-    return gd.upload(source_file, file_name, 'test')
+    return gd.upload(source_file, file_name, description)
 
 
-def save_image(image, archive_path, file_name, ext='webp', exif=None):
+def save_image(image, archive_path, file_name, exif=None):
     fn = os.path.join(archive_path, file_name)
-    image.save('{fn}.{ext}'.format(fn=fn, ext=ext))  # no exif for now
-    logging.info('Wrote [{fn}.{ext}]'.format(fn=fn, ext=ext))
-    return '{fn}.{ext}'.format(fn=fn, ext=ext)
+    image.save(file_name, exif)
+
+    logging.info('Wrote [{fn}]'.format(fn=file_name))
+    return file_name
 
 
 def process_image(image_data):
