@@ -1,6 +1,7 @@
 #FROM python:3.6-alpine
 #FROM arm32v7/python:3
 FROM arm32v6/alpine:3.7
+#from multiarch/alpine:armhf-latest-stable
 
 RUN apk add --no-cache python3 && \
     python3 -m ensurepip && \
@@ -11,6 +12,7 @@ RUN apk add --no-cache python3 && \
     rm -r /root/.cache
 
 RUN apk add build-base --no-cache \
+    cmake \
     tzdata \
     python3-dev \
     # Pillow dependencies
@@ -24,11 +26,24 @@ RUN apk add build-base --no-cache \
     tcl-dev \
     harfbuzz-dev \
     fribidi-dev \
-    libwebp-dev
+    libwebp-dev \
+    gettext-dev \
+    boost-python \
+    boost-dev
 
 RUN mkdir -p /opt/surflog
 
 ADD requirements.txt /opt/surflog
+
+ADD exiv2 /opt/surflog/exiv2
+
+RUN mkdir -p /opt/surflog/exiv2/build
+
+RUN cd /opt/surflog/exiv2/build && cmake ..
+
+RUN cd /opt/surflog/exiv2/build && make -j2
+
+RUN cd /opt/surflog/exiv2/build && make install
 
 RUN pip3 install -r /opt/surflog/requirements.txt
 
@@ -48,6 +63,7 @@ ADD ./crons/scrape_all /etc/periodic/23h/
 
 # Add source as late as possible to optimize build
 ADD ./src /opt/surflog
+
 
 RUN python3 /opt/surflog/pil_support.py
 

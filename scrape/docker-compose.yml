@@ -5,7 +5,7 @@ services:
   build:
     context: .
     dockerfile: Dockerfile.arm
-#   dockerfile: Dockerfile.amd64
+#      dockerfile: Dockerfile.amd64
   entrypoint: crond -f -l 2 -L /dev/stdout
   volumes:
     - /home/pi/surflog:/opt/surflog/host:rw
