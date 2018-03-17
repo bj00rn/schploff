@@ -1,7 +1,7 @@
 import os
 from requests import get
 import hashlib
-from .fix_exif_date import fix_image_dates, generate_exif_data, set_exif_exiv2
+from .fix_exif_date import fix_image_dates, set_exif_exiv2
 from .store import SqliteStore, NoStore
 from .gdStore import GDStore
 from .image import replace_transparency

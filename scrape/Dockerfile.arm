@@ -3,66 +3,96 @@
 FROM arm32v6/alpine:3.7
 #from multiarch/alpine:armhf-latest-stable
 
-RUN apk add --no-cache python3 && \
-    python3 -m ensurepip && \
-    rm -r /usr/lib/python*/ensurepip && \
-    pip3 install --upgrade pip setuptools && \
-    if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip ; fi && \
-    if [[ ! -e /usr/bin/python ]]; then ln -sf /usr/bin/python3 /usr/bin/python; fi && \
-    rm -r /root/.cache
+RUN apk add --no-cache python3 \
+    && python3 -m ensurepip \
+    && rm -r /usr/lib/python*/ensurepip \
+    && pip3 install --upgrade pip setuptools \
+    && if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip ; fi \
+    && if [[ ! -e /usr/bin/python ]]; then ln -sf /usr/bin/python3 /usr/bin/python; fi  
 
-RUN apk add build-base --no-cache \
+RUN apk add --no-cache \
+    build-base \
+    git \
     cmake \
+    curl \
     tzdata \
     python3-dev \
     # Pillow dependencies
     jpeg-dev \
+    jpeg \
     zlib-dev \
+    zlib \
+    gettext \
     freetype-dev \
-    lcms2-dev \
-    openjpeg-dev \
-    tiff-dev \
-    tk-dev \
-    tcl-dev \
-    harfbuzz-dev \
-    fribidi-dev \
+    freetype \
+    lcms2 \
+#    openjpeg-dev \
+#    openjepg \
+#    tiff \
+#    tk \
+#    tcl \
+    harfbuzz \
+    fribidi \
     libwebp-dev \
-    gettext-dev \
+    libwebp \
+    gettext \
     boost-python \
-    boost-dev
+    boost \
+    boost-dev \
+    libintl \
+    expat-dev \
+    expat \
+    musl
+
+
+
+RUN mkdir -p /tmp/deps \
+    && git clone https://github.com/Exiv2/exiv2.git /tmp/deps/exiv2 \
+    && cd /tmp/deps/exiv2 \
+    && git checkout d775683f579543c35463ab2a8d9425da10d2f016 \
+    && mkdir -p /tmp/deps/exiv2/build
+
+WORKDIR /tmp/deps/exiv2/build
+
+RUN cmake .. -DCMAKE_INSTALL_PREFIX=/usr && make -j4 && make install \
+    && rm -rf /tmp/deps
+
+ENV LD_LIBRARY_PATH="/usr/lib64"
 
 RUN mkdir -p /opt/surflog
 
-ADD requirements.txt /opt/surflog
+WORKDIR /opt/surflog
 
-ADD exiv2 /opt/surflog/exiv2
+ADD requirements.txt .
 
-RUN mkdir -p /opt/surflog/exiv2/build
+RUN pip3 install -r requirements.txt
 
-RUN cd /opt/surflog/exiv2/build && cmake .. && make -j2 && make install && rm -rf /opt/surflog/exiv2
-
-RUN pip3 install -r /opt/surflog/requirements.txt
-
-RUN apk del build-base \
-  boost-dev \
-  cmake \
-  python3-dev
+#RUN apk del $(apk info | grep "\-dev") \
+#    build-base \
+#    cmake \
+#    git \
+#    curl \
+#    &&  rm -r /root/.cache \
+#    && rm -rf /opt/surflog/deps
 
 # Setup crons
-RUN mkdir -p /etc/periodic/45m
-RUN mkdir -p /etc/periodic/23h
-RUN mkdir -p /etc/periodic/minutely
+RUN mkdir -p /etc/periodic/45m \
+    && mkdir -p /etc/periodic/23h \
+    && mkdir -p /etc/periodic/minutely
 
-RUN echo '*   *    *  *  *    run-parts /etc/periodic/minutely' >>/etc/crontabs/root
-RUN echo '45  *    *  *  *    run-parts /etc/periodic/45m' >> /etc/crontabs/root
-RUN echo '*   23   *  *  *    run-parts /etc/periodic/23h' >> /etc/crontabs/root
+RUN echo '*   *    *  *  *    run-parts /etc/periodic/minutely' >>/etc/crontabs/root \
+    && echo '45  *    *  *  *    run-parts /etc/periodic/45m' >> /etc/crontabs/root \
+    && echo '*   23   *  *  *    run-parts /etc/periodic/23h' >> /etc/crontabs/root 
 
 ADD ./crons/scrape /etc/periodic/45m/
 ADD ./crons/scrape_all /etc/periodic/23h/
 
+
 # Add source as late as possible to optimize build
-ADD ./src /opt/surflog
+ADD ./src .
 
 RUN python3 /opt/surflog/pil_support.py
 
-ENTRYPOINT ["python3", "/opt/surflog/scrape.py", "/opt/surflog", "--check-fi"]
+#ENTRYPOINT ["python3", "/opt/surflog/scrape.py", "/opt/surflog", "--check-fi"]
+
+ENTRYPOINT [ "sh" ]
