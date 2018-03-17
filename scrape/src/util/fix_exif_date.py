@@ -24,16 +24,24 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def set_exif_shell(filename, createDate, comment):
-    date_str = u'{:%Y:%m:%d %H:%M:%S}'.format(createDate)
+def set_exif_tag(tag_name, tag_value, file_name):
     try:
         subprocess.call([
-            "exiv2", "-M",
-            'set Exif.Image.DateTimeOriginal {d}'.format(d=date_str), filename
+            "exiv2", "-M", 'set {t} {v}'.format(t=tag_name, v=tag_value),
+            file_name
         ])
     except Exception as e:
         logger.exception(
-            "Failed to set exif data using shell, is exiv2 installed?")
+            "Failed to set exif tag {t}={v} in file {f} using shell, is exiv2 installed?".
+            format(t=tag_name, v=tag_value, f=file_name))
+
+
+def set_exif_shell(filename, createDate, comment):
+    date_str = u'{:%Y:%m:%d %H:%M:%S}'.format(createDate)
+    set_exif_tag('Exif.Image.DateTimeOriginal', date_str, filename)
+    set_exif_tag('Exif.Photo.DateTimeOriginal', date_str, filename)
+    set_exif_tag('Exif.Image.DateTime', date_str, filename)
+    set_exif_tag('Exif.Photo.DateTimeDigitized', date_str, filename)
 
 
 def generate_exif_data(image, createDate, comment=''):

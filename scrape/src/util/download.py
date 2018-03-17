@@ -78,10 +78,10 @@ def upload_to_drive(source_file,
 
 def save_image(image, archive_path, file_name, exif=None):
     fn = os.path.join(archive_path, file_name)
-    image.save(file_name, exif)
+    image.save(fn)  # don't use exif for now due to lack of web support
 
-    logging.info('Wrote [{fn}]'.format(fn=file_name))
-    return file_name
+    logging.info('Wrote [{fn}]'.format(fn=fn))
+    return fn
 
 
 def process_image(image_data):
