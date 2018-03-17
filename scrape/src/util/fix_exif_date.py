@@ -15,7 +15,7 @@ Requires: gexiv2
 
 import os
 import time
-import piexif
+import pyexiv2
 
 import subprocess
 
@@ -44,7 +44,24 @@ def set_exif_shell(filename, createDate, comment):
     set_exif_tag('Exif.Photo.DateTimeDigitized', date_str, filename)
 
 
+def set_exif_exiv2(filename, createDate, comment):
+    metadata = pyexiv2.ImageMetadata(filename)
+    metadata.read()
+    exif_dict = [
+        ('Exif.Image.DateTime', createDate, ),
+        ('Exif.Photo.DateTimeOriginal', createDate, ),
+        ('Exif.Image.DateTimeOriginal', createDate, ),
+        ('Exif.Photo.DateTimeDigitized', createDate, ),
+        ('Exif.Photo.UserComment', comment, ),
+    ]
+    for (key, value) in exif_dict:
+        metadata[key] = pyexiv2.ExifTag(key, value)
+    metadata.write(preserve_timestamps=True)
+    
+
 def generate_exif_data(image, createDate, comment=''):
+    m = pyexiv2.ExifTag()
+
     date_str = u'{:%Y:%m:%d %H:%M:%S}'.format(createDate)
     _comment = u'{0}'.format(comment)
     w, h = image.size

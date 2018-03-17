@@ -1,7 +1,7 @@
 import os
 from requests import get
 import hashlib
-from .fix_exif_date import fix_image_dates, generate_exif_data, set_exif_shell
+from .fix_exif_date import fix_image_dates, generate_exif_data, set_exif_exiv2
 from .store import SqliteStore, NoStore
 from .gdStore import GDStore
 from .image import replace_transparency
@@ -37,7 +37,7 @@ def process_files(db_file, files, archive_path, upload_to_gdrive=False):
                             image_fn,
                         )
 
-                        set_exif_shell(
+                        set_exif_exiv2(
                             archive_file, image_date, comment=image_fn)
 
                         fix_image_dates(archive_file, image_date)
