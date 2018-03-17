@@ -39,15 +39,14 @@ ADD exiv2 /opt/surflog/exiv2
 
 RUN mkdir -p /opt/surflog/exiv2/build
 
-RUN cd /opt/surflog/exiv2/build && cmake ..
-
-RUN cd /opt/surflog/exiv2/build && make -j2
-
-RUN cd /opt/surflog/exiv2/build && make install
+RUN cd /opt/surflog/exiv2/build && cmake .. && make -j2 && make install && rm -rf /opt/surflog/exiv2
 
 RUN pip3 install -r /opt/surflog/requirements.txt
 
-RUN apk del build-base
+RUN apk del build-base \
+  boost-dev \
+  cmake \
+  python3-dev
 
 # Setup crons
 RUN mkdir -p /etc/periodic/45m
@@ -63,7 +62,6 @@ ADD ./crons/scrape_all /etc/periodic/23h/
 
 # Add source as late as possible to optimize build
 ADD ./src /opt/surflog
-
 
 RUN python3 /opt/surflog/pil_support.py
 
