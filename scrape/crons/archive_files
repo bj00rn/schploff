@@ -1,0 +1,5 @@
+#!/bin/sh
+set -ex
+echo "Archiving files.."
+cd /opt/surflog/host/archive
+exiftool -v5 -d ./sorted/%Y-%m-%d "-directory<filemodifydate" "-directory<createdate" "-directory<datetimeoriginal" .
