@@ -17,6 +17,7 @@ class ImageSource(object):
             try:
                 logging.info('Getting [{url}]'.format(url=url))
                 files.append((url, of, Image.open(BytesIO(get(url).content))))
+                logging.info('Got [{url}]'.format(url=url))
             except Exception:
                 logging.exception('Failed to get [{url}]'.format(url=url))
         return files
@@ -41,7 +42,7 @@ class MultiSource(ImageSource):
         super(MultiSource, self).__init__()
 
 
-class DMISource(MultiSource):
+class DMISourceBaltic(MultiSource):
     base_url = 'http://ocean.dmi.dk/anim/plots/{idx}.ba.1.png'
     base_fn = 'dmi_forecast_{}'
     expr_list = [
@@ -52,9 +53,23 @@ class DMISource(MultiSource):
         ('win', 'wind'),
     ]
 
+    def __init__(self):
+        super(DMISourceBaltic, self).__init__()
 
-def __init__(self):
-    super(MultiSource, self).__init__()
+
+class DMISourceNorthsea(MultiSource):
+    base_url = 'http://ocean.dmi.dk/anim/plots/{idx}.nsb.1.png'
+    base_fn = 'dmi_forecast_north_sea_{}'
+    expr_list = [
+        ('tp', 'dominant_wave_period'),
+        ('hs', 'significant_wave_height'),
+        ('hsw', 'swell_height'),
+        ('tsw', 'period_of_total_swell'),
+        ('win', 'wind'),
+    ]
+
+    def __init__(self):
+        super(DMISourceNorthsea, self).__init__()
 
 
 class SMHIBouySource(MultiSource):

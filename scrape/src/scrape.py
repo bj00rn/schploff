@@ -6,7 +6,7 @@ from datetime import datetime
 from util.download import process_files
 import logging
 import logging.config
-from util.image_source import FIBouySource, DMISource, SMHIBouySource, FIForecastSource
+from util.image_source import FIBouySource, DMISourceBaltic, DMISourceNorthsea, SMHIBouySource, FIForecastSource
 import argparse
 
 
@@ -62,8 +62,7 @@ def main(argv):
         '--check-fi',
         dest='check_fi',
         action='store_true',
-        help=
-        'get finnish wave bouy observations (generates a new image on every run)'
+        help='get finnish wave bouy observations (generates a new image on every run)'
     )
 
     aargs = parser.parse_args()
@@ -72,7 +71,7 @@ def main(argv):
     logger.info('Program started {0}'.format('{:%F_%H-%M-%S}'.format(
         datetime.now())))
 
-    files = DMISource().get_files() + SMHIBouySource().get_files(
+    files = DMISourceBaltic().get_files() + DMISourceNorthsea.get_files() + SMHIBouySource().get_files(
     ) + FIForecastSource().get_files()
 
     if aargs.check_fi:
