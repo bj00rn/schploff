@@ -1,4 +1,4 @@
-FROM multiarch/alpine:armhf-latest-stable
+FROM arm32v7/alpine:latest
 
 ENV LD_LIBRARY_PATH="/usr/lib64"
 
