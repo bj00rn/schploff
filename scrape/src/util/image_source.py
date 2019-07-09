@@ -34,8 +34,8 @@ class MultiSource(ImageSource):
     def get_sources(self):
         sources = []
         for idx, desc, in self.expr_list:
-            sources.append((self.base_url.format(idx=idx),
-                            self.base_fn.format(desc)))
+            sources.append(
+                (self.base_url.format(idx=idx), self.base_fn.format(desc)))
         return sources
 
     def __init__(self):

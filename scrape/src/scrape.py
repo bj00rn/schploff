@@ -43,26 +43,24 @@ def main(argv):
     os.chdir(local_dir)
 
     parser = argparse.ArgumentParser(prog='Scrape')
-    parser.add_argument(
-        'archivepath',
-        metavar='archive path',
-        type=writable_dir,
-        help='archive path to copy images')
-    parser.add_argument(
-        '--database',
-        dest='database',
-        type=database,
-        help='database to check downloaded files against')
-    parser.add_argument(
-        '--upload-to-gdrive',
-        dest='upload_to_gdrive',
-        action='store_true',
-        help='upload files to google drive')
+    parser.add_argument('archivepath',
+                        metavar='archive path',
+                        type=writable_dir,
+                        help='archive path to copy images')
+    parser.add_argument('--database',
+                        dest='database',
+                        type=database,
+                        help='database to check downloaded files against')
+    parser.add_argument('--upload-to-gdrive',
+                        dest='upload_to_gdrive',
+                        action='store_true',
+                        help='upload files to google drive')
     parser.add_argument(
         '--check-fi',
         dest='check_fi',
         action='store_true',
-        help='get finnish wave bouy observations (generates a new image on every run)'
+        help=
+        'get finnish wave bouy observations (generates a new image on every run)'
     )
 
     aargs = parser.parse_args()
@@ -71,7 +69,8 @@ def main(argv):
     logger.info('Program started {0}'.format('{:%F_%H-%M-%S}'.format(
         datetime.now())))
 
-    files = DMISourceBaltic().get_files() + DMISourceNorthsea().get_files() + SMHIBouySource().get_files() + FIForecastSource().get_files()
+    files = DMISourceBaltic().get_files() + DMISourceNorthsea().get_files(
+    ) + SMHIBouySource().get_files() + FIForecastSource().get_files()
 
     if aargs.check_fi:
         files += FIBouySource().get_files()

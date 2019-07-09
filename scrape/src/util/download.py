@@ -37,8 +37,9 @@ def process_files(db_file, files, archive_path, upload_to_gdrive=False):
                             image_fn,
                         )
 
-                        set_exif_exiv2(
-                            archive_file, image_date, comment=image_fn)
+                        set_exif_exiv2(archive_file,
+                                       image_date,
+                                       comment=image_fn)
 
                         fix_image_dates(archive_file, image_date)
 
@@ -50,11 +51,11 @@ def process_files(db_file, files, archive_path, upload_to_gdrive=False):
                                 file_name=image_fn,
                                 description=image_fn)
 
-                        store.add(
-                            hash=hexh,
-                            timestamp=time.mktime(image_date.timetuple()),
-                            filename=archive_file,
-                            file_class='n/a')
+                        store.add(hash=hexh,
+                                  timestamp=time.mktime(
+                                      image_date.timetuple()),
+                                  filename=archive_file,
+                                  file_class='n/a')
 
                     else:
                         logger.info(
