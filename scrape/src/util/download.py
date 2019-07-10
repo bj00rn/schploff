@@ -1,7 +1,9 @@
 import os
+import piexif
+import piexif.helper
 from requests import get
 import hashlib
-from .fix_exif_date import fix_image_dates, set_exif_exiv2
+from .fix_exif_date import fix_image_dates
 from .store import SqliteStore, NoStore
 from .storage.google.googleStorage import DriveStorage, PhotosStorage
 from .image import remove_transparency
@@ -47,13 +49,23 @@ def process_files(db_file,
                             ext=image_format,
                         )
 
-                        archive_file = save_image(processed_image,
-                                                  archive_path, image_fn,
-                                                  quality)
+                        exif_ifd = {
+                            piexif.ExifIFD.DateTimeOriginal:
+                            image_date.strftime('%Y:%m:%d %H:%M:%S'),
+                            piexif.ExifIFD.UserComment:
+                            piexif.helper.UserComment.dump(image_fn,
+                                                           encoding="ascii"),
+                        }
 
-                        set_exif_exiv2(archive_file,
-                                       image_date,
-                                       comment=image_fn)
+                        exif_dict = {'Exif': exif_ifd}
+
+                        archive_file = save_image(
+                            processed_image,
+                            archive_path,
+                            image_fn,
+                            quality,
+                            piexif.dump(exif_dict),
+                        )
 
                         fix_image_dates(archive_file, image_date)
 
