@@ -1,3 +1,0 @@
-[submodule "scrape/exiv2"]
-	path = scrape/exiv2
-	url = https://github.com/Exiv2/exiv2/
