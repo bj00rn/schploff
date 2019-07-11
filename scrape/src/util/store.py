@@ -25,6 +25,9 @@ class NoStore():
     def add(self, *args, **kwargs):
         return True
 
+    def exists(self, *arg, **kwargs):
+        return False
+
 
 class SqliteStore():
     def __init__(self, db_file):
@@ -64,3 +67,6 @@ class SqliteStore():
             'SELECT timestamp FROM download where fileclass=? ORDER BY timestamp DESC LIMIT 1',
             (file_class, ))
         return cur.fetchone()
+
+    def exists(self, hash):
+        return self.get(hash) is not None

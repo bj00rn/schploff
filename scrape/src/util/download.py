@@ -40,7 +40,7 @@ def process_files(db_file,
                     hexh = hashlib.md5(image_data.tobytes()).hexdigest()
 
                     # process the file if not already in db
-                    if store.get(hexh) is None:
+                    if not store.exists(hexh):
                         image_date = datetime.now()
                         processed_image = process_image(im)
                         image_fn = "{fn}_{date}.{ext}".format(
