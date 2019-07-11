@@ -4,7 +4,7 @@ import hashlib
 from .fix_exif_date import fix_image_dates, set_exif_exiv2
 from .store import SqliteStore, NoStore
 from .storage.google.googleStorage import DriveStorage, PhotosStorage
-from .image import replace_transparency
+from .image import remove_transparency
 import logging
 import time
 from datetime import datetime
@@ -36,7 +36,7 @@ def process_files(db_file,
     with SqliteStore(db_file) if db_file is not None else NoStore() as store:
         for (source_url, of_name, image_data) in files:
             try:
-                with replace_transparency(image_data) as im:
+                with remove_transparency(image_data) as im:
                     hexh = hashlib.md5(image_data.tobytes()).hexdigest()
 
                     # process the file if not already in db
@@ -89,4 +89,4 @@ def save_image(image, archive_path, file_name, quality=80, exif=None):
 
 
 def process_image(image_data):
-    return replace_transparency(image_data)
+    return remove_transparency(image_data)
