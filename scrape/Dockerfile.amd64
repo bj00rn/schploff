@@ -1,4 +1,4 @@
-FROM multiarch/alpine:amd64-latest-stable
+FROM alpine:latest
 
 ENV LD_LIBRARY_PATH="/usr/lib64"
 
