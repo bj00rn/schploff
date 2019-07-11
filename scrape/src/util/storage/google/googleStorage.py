@@ -5,6 +5,7 @@ from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 from pydrive import settings
 import logging
+import json
 
 logger = logging.getLogger(__name__)
 logging.getLogger('googleapiclient.discovery_cache').setLevel(logging.ERROR)
@@ -66,8 +67,40 @@ class PhotosStorage(GoogleStorage):
                 headers=headers,
                 data=data)
             image_token = response.text
-            logger.info('Uploaded [{checksum}] [{fn}]'.format(
+
+            if response.status_code != 200:
+                raise Exception(f'Failed to upload media: {response.text}')
+            else:
+                logger.info(
+                    'Uploaded to google photos [{checksum}] [{fn}]'.format(
                 checksum=image_token, fn=fn))
+
+            response = requests.post(
+                'https://photoslibrary.googleapis.com/v1/mediaItems:batchCreate',
+                headers={
+                    'Content-type':
+                    'application/json',
+                    'Authorization':
+                    'Bearer ' + self.gauth.credentials.access_token,
+                },
+                data=json.dumps({
+                    "newMediaItems": [{
+                        "description": fn,
+                        "simpleMediaItem": {
+                            "uploadToken": image_token,
+                        }
+                    }]
+                }))
+            if response.status_code != 200:
+                raise Exception(
+                    f'Failed to create media item: {response.text}')
+            else:
+                logger.info('Created media item [{url}]'.format(
+                    url=json.loads(response.text)['newMediaItemResults'][0]
+                    ['mediaItem']['productUrl']))
+
+            logger.debug(response.text)
+
         except Exception as e:
             logger.warning('failed to upload [{fn}] to google photos'.format(
                 fn=file_path),
