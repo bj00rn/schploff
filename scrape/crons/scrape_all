@@ -1,2 +1,2 @@
 #!/bin/sh
-python3 /opt/surflog/scrape.py --database /opt/surflog/host/scrape/scrape.sqlite3  --upload-to-gdrive  --check-fi /opt/surflog/host/archive
+python3 /opt/surflog/scrape.py --database /opt/surflog/host/scrape/scrape.sqlite3  --upload-to-photos  --check-fi /opt/surflog/host/archive
