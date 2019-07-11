@@ -1,4 +1,4 @@
-from util.image import replace_transparency
+from util.image import remove_transparency
 from util.download import get_image
 from io import BytesIO
 from PIL import Image
@@ -12,5 +12,5 @@ class TestImage(unittest.TestCase):
 
         u, i = get_image(url)
         im = Image.open(BytesIO(i))
-        im2 = replace_transparency(im)
+        im2 = repmove_transparency(im)
         self.assertTrue(im2.verify() is None)

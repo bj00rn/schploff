@@ -8,6 +8,7 @@ import logging
 import logging.config
 from util.image_source import FIBouySource, DMISourceBaltic, DMISourceNorthsea, SMHIBouySource, FIForecastSource
 import argparse
+from loguru import logger
 
 
 def dir(path, permission=os.R_OK):
@@ -55,6 +56,16 @@ def main(argv):
                         dest='upload_to_gdrive',
                         action='store_true',
                         help='upload files to google drive')
+    parser.add_argument('--upload-to-photos',
+                        dest='upload_to_photos',
+                        action='store_true',
+                        help='upload files to google photos')
+    parser.add_argument('--quality',
+                        dest='quality',
+                        type=int,
+                        metavar='Q',
+                        default=80,
+                        help='image quality, integer 10-100 (default 80)')
     parser.add_argument(
         '--check-fi',
         dest='check_fi',
@@ -62,46 +73,26 @@ def main(argv):
         help=
         'get finnish wave bouy observations (generates a new image on every run)'
     )
+    parser.add_argument('--verbose',
+                        '-v',
+                        action='store_true',
+                        dest='verbose',
+                        help='verbose logging')
 
     aargs = parser.parse_args()
-    logger = logging.getLogger(__name__)
 
     logger.info('Program started {0}'.format('{:%F_%H-%M-%S}'.format(
         datetime.now())))
 
-    files = DMISourceBaltic().get_files() + DMISourceNorthsea().get_files(
-    ) + SMHIBouySource().get_files() + FIForecastSource().get_files()
+    files = DMISourceBaltic().get_images() + DMISourceNorthsea().get_images(
+    ) + SMHIBouySource().get_images() + FIForecastSource().get_images()
 
     if aargs.check_fi:
-        files += FIBouySource().get_files()
+        files += FIBouySource().get_images()
 
-    process_files(aargs.database, files, aargs.archivepath,
-                  aargs.upload_to_gdrive)
+    process_files(aargs.database, files, aargs.archivepath, aargs.quality,
+                  aargs.upload_to_gdrive, aargs.upload_to_photos)
 
-
-logging.config.dictConfig({
-    'version': 1,
-    'disable_existing_loggers': False,  # this fixes the problem
-    'formatters': {
-        'standard': {
-            'format': '%(asctime)s [%(levelname)s] %(name)s: %(message)s'
-        },
-    },
-    'handlers': {
-        'default': {
-            'level': 'INFO',
-            'class': 'logging.StreamHandler',
-            'formatter': 'standard',
-        },
-    },
-    'loggers': {
-        '': {
-            'handlers': ['default'],
-            'level': 'INFO',
-            'propagate': True
-        }
-    }
-})
 
 if __name__ == '__main__':
     main(sys.argv[1:])

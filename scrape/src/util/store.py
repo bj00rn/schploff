@@ -4,8 +4,7 @@
 import sqlite3 as lite
 import sys
 import logging
-
-logger = logging.getLogger(__name__)
+from loguru import logger
 
 
 class NoStore():
@@ -24,6 +23,9 @@ class NoStore():
 
     def add(self, *args, **kwargs):
         return True
+
+    def exists(self, *arg, **kwargs):
+        return False
 
 
 class SqliteStore():
@@ -64,3 +66,6 @@ class SqliteStore():
             'SELECT timestamp FROM download where fileclass=? ORDER BY timestamp DESC LIMIT 1',
             (file_class, ))
         return cur.fetchone()
+
+    def exists(self, hash):
+        return self.get(hash) is not None
