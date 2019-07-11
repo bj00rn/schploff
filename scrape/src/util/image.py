@@ -3,9 +3,7 @@
 import sys
 import getopt
 from PIL import Image
-import logging
-
-logger = logging.getLogger(__name__)
+from loguru import logger
 
 
 def remove_transparency(source_image, bg_colour=(255, 255, 255)):

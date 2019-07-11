@@ -8,7 +8,7 @@ import subprocess
 
 from PIL import Image
 import logging
-logger = logging.getLogger(__name__)
+from loguru import logger
 
 
 def set_exif_tag(tag_name, tag_value, file_name):

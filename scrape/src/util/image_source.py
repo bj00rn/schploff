@@ -1,7 +1,7 @@
-import logging
 from PIL import Image
 from requests import get
 from io import BytesIO
+from loguru import logger
 
 
 class ImageSource(object):
@@ -15,11 +15,11 @@ class ImageSource(object):
         files = []
         for url, of in self.get_sources():
             try:
-                logging.info('Getting [{url}]'.format(url=url))
+                logger.info('Getting [{url}]'.format(url=url))
                 files.append((url, of, Image.open(BytesIO(get(url).content))))
-                logging.info('Got [{url}]'.format(url=url))
+                logger.info('Got [{url}]'.format(url=url))
             except Exception:
-                logging.exception('Failed to get [{url}]'.format(url=url))
+                logger.exception('Failed to get [{url}]'.format(url=url))
         return files
 
     def __init__(self):

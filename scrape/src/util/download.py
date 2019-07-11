@@ -8,8 +8,7 @@ from .image import remove_transparency
 import logging
 import time
 from datetime import datetime
-
-logger = logging.getLogger(__name__)
+from loguru import logger
 
 image_format = 'webp'
 
@@ -79,9 +78,9 @@ def process_files(db_file,
 
 
 def save_image(image, archive_path, file_name, quality=80, exif=None):
-    fn = os.path.join(archive_path, file_name)
+    fn = os.path.abspath(os.path.join(archive_path, file_name))
     image.save(
         fn,
         quality=quality)  # don't use exif for now due to lack of web support
-    logging.info('Wrote [{fn}]'.format(fn=fn))
+    logger.info('Wrote [{fn}]'.format(fn=fn))
     return fn

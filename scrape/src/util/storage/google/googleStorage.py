@@ -6,8 +6,8 @@ from pydrive.drive import GoogleDrive
 from pydrive import settings
 import logging
 import json
+from loguru import logger
 
-logger = logging.getLogger(__name__)
 logging.getLogger('googleapiclient.discovery_cache').setLevel(logging.ERROR)
 
 
@@ -73,7 +73,7 @@ class PhotosStorage(GoogleStorage):
             else:
                 logger.info(
                     'Uploaded to google photos [{checksum}] [{fn}]'.format(
-                checksum=image_token, fn=fn))
+                        checksum=image_token, fn=fn))
 
             response = requests.post(
                 'https://photoslibrary.googleapis.com/v1/mediaItems:batchCreate',
@@ -134,5 +134,5 @@ class DriveStorage(GoogleStorage):
                 checksum=file1['md5Checksum'], fn=fn))
             return file1
         except Exception as e:
-            logger(
+            logger.error(
                 'failed to upload [{fn}] to google drive'.format(fn=file_path))

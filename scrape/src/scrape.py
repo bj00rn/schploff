@@ -8,6 +8,7 @@ import logging
 import logging.config
 from util.image_source import FIBouySource, DMISourceBaltic, DMISourceNorthsea, SMHIBouySource, FIForecastSource
 import argparse
+from loguru import logger
 
 
 def dir(path, permission=os.R_OK):
@@ -72,9 +73,13 @@ def main(argv):
         help=
         'get finnish wave bouy observations (generates a new image on every run)'
     )
+    parser.add_argument('--verbose',
+                        '-v',
+                        action='store_true',
+                        dest='verbose',
+                        help='verbose logging')
 
     aargs = parser.parse_args()
-    logger = logging.getLogger(__name__)
 
     logger.info('Program started {0}'.format('{:%F_%H-%M-%S}'.format(
         datetime.now())))
@@ -88,30 +93,6 @@ def main(argv):
     process_files(aargs.database, files, aargs.archivepath, aargs.quality,
                   aargs.upload_to_gdrive, aargs.upload_to_photos)
 
-
-logging.config.dictConfig({
-    'version': 1,
-    'disable_existing_loggers': False,  # this fixes the problem
-    'formatters': {
-        'standard': {
-            'format': '%(asctime)s [%(levelname)s] %(name)s: %(message)s'
-        },
-    },
-    'handlers': {
-        'default': {
-            'level': 'INFO',
-            'class': 'logging.StreamHandler',
-            'formatter': 'standard',
-        },
-    },
-    'loggers': {
-        '': {
-            'handlers': ['default'],
-            'level': 'INFO',
-            'propagate': True
-        }
-    }
-})
 
 if __name__ == '__main__':
     main(sys.argv[1:])
