@@ -84,11 +84,11 @@ def main(argv):
     logger.info('Program started {0}'.format('{:%F_%H-%M-%S}'.format(
         datetime.now())))
 
-    files = DMISourceBaltic().get_files() + DMISourceNorthsea().get_files(
-    ) + SMHIBouySource().get_files() + FIForecastSource().get_files()
+    files = DMISourceBaltic().get_images() + DMISourceNorthsea().get_images(
+    ) + SMHIBouySource().get_images() + FIForecastSource().get_images()
 
     if aargs.check_fi:
-        files += FIBouySource().get_files()
+        files += FIBouySource().get_images()
 
     process_files(aargs.database, files, aargs.archivepath, aargs.quality,
                   aargs.upload_to_gdrive, aargs.upload_to_photos)

@@ -8,12 +8,12 @@ class ImageSource(object):
     base_url = None
     base_fn = None
 
-    def get_sources(self):
+    def get_urls(self):
         return [(self.base_url, self.base_fn)]
 
-    def get_files(self):
+    def get_images(self):
         files = []
-        for url, of in self.get_sources():
+        for url, of in self.get_urls():
             try:
                 logger.info('Getting [{url}]'.format(url=url))
                 files.append((url, of, Image.open(BytesIO(get(url).content))))
@@ -31,7 +31,7 @@ class MultiSource(ImageSource):
     base_fn = None
     expr_list = []
 
-    def get_sources(self):
+    def get_urls(self):
         sources = []
         for idx, desc, in self.expr_list:
             sources.append(
