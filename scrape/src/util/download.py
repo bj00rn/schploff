@@ -36,13 +36,12 @@ def process_files(db_file,
     with SqliteStore(db_file) if db_file is not None else NoStore() as store:
         for (source_url, of_name, image_data) in files:
             try:
-                with remove_transparency(image_data) as im:
-                    hexh = hashlib.md5(image_data.tobytes()).hexdigest()
+                hexh = hashlib.md5(image_data.tobytes()).hexdigest()
 
-                    # process the file if not already in db
-                    if not store.exists(hexh):
+                # process the file if not already in db
+                if not store.exists(hexh):
+                    with remove_transparency(image_data) as processed_image:
                         image_date = datetime.now()
-                        processed_image = process_image(im)
                         image_fn = "{fn}_{date}.{ext}".format(
                             fn=of_name,
                             date='{:%F_%H-%M-%S}'.format(image_date),
@@ -68,14 +67,15 @@ def process_files(db_file,
                                   filename=archive_file,
                                   file_class='n/a')
 
-                    else:
-                        logger.info(
-                            'skipping [{hash}[ [{filename}] already in db'.
-                            format(hash=hexh, filename=of_name))
+                else:
+                    logger.info(
+                        'skipping [{hash}[ [{filename}] already in db'.format(
+                            hash=hexh, filename=of_name))
 
             except Exception as e:
-                logger.exception('failed to process [{hexh}] [{fn}]'.format(
-                    hexh=hexh, fn=of_name))
+                logger.error('failed to process [{hexh}] [{fn}]'.format(
+                    hexh=hexh, fn=of_name),
+                             exc_info=True)
 
 
 def save_image(image, archive_path, file_name, quality=80, exif=None):
@@ -83,10 +83,5 @@ def save_image(image, archive_path, file_name, quality=80, exif=None):
     image.save(
         fn,
         quality=quality)  # don't use exif for now due to lack of web support
-
     logging.info('Wrote [{fn}]'.format(fn=fn))
     return fn
-
-
-def process_image(image_data):
-    return remove_transparency(image_data)
