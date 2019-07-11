@@ -55,6 +55,16 @@ def main(argv):
                         dest='upload_to_gdrive',
                         action='store_true',
                         help='upload files to google drive')
+    parser.add_argument('--upload-to-photos',
+                        dest='upload_to_photos',
+                        action='store_true',
+                        help='upload files to google photos')
+    parser.add_argument('--quality',
+                        dest='quality',
+                        type=int,
+                        metavar='Q',
+                        default=80,
+                        help='image quality, integer 10-100 (default 80)')
     parser.add_argument(
         '--check-fi',
         dest='check_fi',
@@ -75,8 +85,8 @@ def main(argv):
     if aargs.check_fi:
         files += FIBouySource().get_files()
 
-    process_files(aargs.database, files, aargs.archivepath,
-                  aargs.upload_to_gdrive)
+    process_files(aargs.database, files, aargs.archivepath, aargs.quality,
+                  aargs.upload_to_gdrive, aargs.upload_to_photos)
 
 
 logging.config.dictConfig({

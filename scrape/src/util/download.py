@@ -3,7 +3,7 @@ from requests import get
 import hashlib
 from .fix_exif_date import fix_image_dates, set_exif_exiv2
 from .store import SqliteStore, NoStore
-from .gdStore import GDStore
+from .storage.google.googleStorage import DriveStorage, PhotosStorage
 from .image import replace_transparency
 import logging
 import time
@@ -14,7 +14,25 @@ logger = logging.getLogger(__name__)
 image_format = 'webp'
 
 
-def process_files(db_file, files, archive_path, upload_to_gdrive=False):
+def process_files(db_file,
+                  files,
+                  archive_path,
+                  quality,
+                  upload_to_gdrive=False,
+                  upload_to_photos=False):
+
+    imageStorage = []
+    if upload_to_gdrive:
+        imageStorage.append(
+            DriveStorage(target_path='0Byrk3xueZv-4cmtBb1cxdFY4WTg',
+                         settings_file='./google_api/settings.yaml'))
+    if upload_to_photos:
+        imageStorage.append(
+            PhotosStorage(settings_file='./google_api/settings.yaml'))
+
+    for storage in imageStorage:
+        storage.connect()
+
     with SqliteStore(db_file) if db_file is not None else NoStore() as store:
         for (source_url, of_name, image_data) in files:
             try:
@@ -31,11 +49,9 @@ def process_files(db_file, files, archive_path, upload_to_gdrive=False):
                             ext=image_format,
                         )
 
-                        archive_file = save_image(
-                            processed_image,
-                            archive_path,
-                            image_fn,
-                        )
+                        archive_file = save_image(processed_image,
+                                                  archive_path, image_fn,
+                                                  quality)
 
                         set_exif_exiv2(archive_file,
                                        image_date,
@@ -43,13 +59,8 @@ def process_files(db_file, files, archive_path, upload_to_gdrive=False):
 
                         fix_image_dates(archive_file, image_date)
 
-                        if upload_to_gdrive:
-                            upload_to_drive(
-                                source_file=archive_file,
-                                target_path='0Byrk3xueZv-4cmtBb1cxdFY4WTg',
-                                settings_file='./google_api/settings.yaml',
-                                file_name=image_fn,
-                                description=image_fn)
+                        for storage in imageStorage:
+                            storage.upload(archive_file, image_fn, image_fn)
 
                         store.add(hash=hexh,
                                   timestamp=time.mktime(
@@ -67,19 +78,11 @@ def process_files(db_file, files, archive_path, upload_to_gdrive=False):
                     hexh=hexh, fn=of_name))
 
 
-def upload_to_drive(source_file,
-                    target_path,
-                    settings_file,
-                    file_name,
-                    description=''):
-    gd = GDStore(target_path, settings_file)
-    gd.connect()
-    return gd.upload(source_file, file_name, description)
-
-
-def save_image(image, archive_path, file_name, exif=None):
+def save_image(image, archive_path, file_name, quality=80, exif=None):
     fn = os.path.join(archive_path, file_name)
-    image.save(fn)  # don't use exif for now due to lack of web support
+    image.save(
+        fn,
+        quality=quality)  # don't use exif for now due to lack of web support
 
     logging.info('Wrote [{fn}]'.format(fn=fn))
     return fn
