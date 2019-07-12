@@ -4,7 +4,6 @@ from io import BytesIO
 from PIL import Image
 
 from util.download import get_image
-from util.image import remove_transparency
 
 
 class TestImage(unittest.TestCase):

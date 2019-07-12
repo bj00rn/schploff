@@ -1,9 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import logging
 import sqlite3 as lite
-import sys
 
 from loguru import logger
 
@@ -11,7 +9,6 @@ from loguru import logger
 class NoStore():
     def __init__(self):
         logger.warning('No database specified')
-        pass
 
     def __enter__(self):
         return self

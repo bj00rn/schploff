@@ -1,10 +1,8 @@
 import hashlib
-import logging
 import os
 import time
 from datetime import datetime
 
-from requests import get
 
 import piexif
 import piexif.helper
