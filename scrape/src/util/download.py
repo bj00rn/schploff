@@ -84,15 +84,18 @@ def process_files(db_file,
                             hash=hexh, filename=of_name))
 
             except Exception as e:
-                logger.error('failed to process [{hexh}] [{fn}]'.format(
+                logger.exception('failed to process [{hexh}] [{fn}]'.format(
                     hexh=hexh, fn=of_name),
-                             exc_info=True)
+                                 exc_info=True)
 
 
 def save_image(image, archive_path, file_name, quality=80, exif=None):
     fn = os.path.abspath(os.path.join(archive_path, file_name))
     image.save(
         fn,
-        quality=quality)  # don't use exif for now due to lack of web support
+        quality=quality,
+    )
+    piexif.insert(
+        exif, fn)  # use piexif for now due to lack of web support in Pillow
     logger.info('Wrote [{fn}]'.format(fn=fn))
     return fn

@@ -61,50 +61,53 @@ class PhotosStorage(GoogleStorage):
                 "Bearer " + self.gauth.credentials.access_token,
             }
 
-            data = open(file_path, 'rb').read()
-            response = requests.post(
-                'https://photoslibrary.googleapis.com/v1/uploads',
-                headers=headers,
-                data=data)
-            image_token = response.text
+            with open(file_path, 'rb') as file:
+                data = file.read()
+                response = requests.post(
+                    'https://photoslibrary.googleapis.com/v1/uploads',
+                    headers=headers,
+                    data=data)
+                image_token = response.text
 
-            if response.status_code != 200:
-                raise Exception(f'Failed to upload media: {response.text}')
-            else:
-                logger.info(
-                    'Uploaded to google photos [{checksum}] [{fn}]'.format(
-                        checksum=image_token, fn=fn))
+                if response.status_code != 200:
+                    raise Exception(f'Failed to upload media: {response.text}')
+                else:
+                    logger.info(
+                        'Uploaded to google photos [{checksum}] [{fn}]'.format(
+                            checksum=image_token, fn=fn))
 
-            response = requests.post(
-                'https://photoslibrary.googleapis.com/v1/mediaItems:batchCreate',
-                headers={
-                    'Content-type':
-                    'application/json',
-                    'Authorization':
-                    'Bearer ' + self.gauth.credentials.access_token,
-                },
-                data=json.dumps({
-                    "newMediaItems": [{
-                        "description": fn,
-                        "simpleMediaItem": {
-                            "uploadToken": image_token,
-                        }
-                    }]
-                }))
-            if response.status_code != 200:
-                raise Exception(
-                    f'Failed to create media item: {response.text}')
-            else:
-                logger.info('Created media item [{url}]'.format(
-                    url=json.loads(response.text)['newMediaItemResults'][0]
-                    ['mediaItem']['productUrl']))
-
-            logger.debug(response.text)
+                response = requests.post(
+                    'https://photoslibrary.googleapis.com/v1/mediaItems:batchCreate',
+                    headers={
+                        'Content-type':
+                        'application/json',
+                        'Authorization':
+                        'Bearer ' + self.gauth.credentials.access_token,
+                    },
+                    data=json.dumps({
+                        "newMediaItems": [{
+                            "description": fn,
+                            "simpleMediaItem": {
+                                "uploadToken": image_token,
+                            }
+                        }]
+                    }))
+                if response.status_code != 200 or response.json(
+                )['newMediaItemResults'][0]['status']['message'].upper(
+                ) not in [
+                        'SUCCESS', 'OK'
+                ]:  # for some reason the api always seems to return 200, hence the need to check message
+                    raise Exception(
+                        f'Failed to create media item: {response.json()}')
+                else:
+                    logger.info('Created media item [{url}]'.format(
+                        url=json.loads(response.text)['newMediaItemResults'][0]
+                        ['mediaItem']['productUrl']))
 
         except Exception as e:
-            logger.warning('failed to upload [{fn}] to google photos'.format(
+            logger.exception('failed to upload [{fn}] to google photos'.format(
                 fn=file_path),
-                           exc_info=True)
+                             exc_info=True)
 
 
 class DriveStorage(GoogleStorage):
