@@ -1,8 +1,10 @@
 #!/usr/bin/python
 
-import sys
 import getopt
+import sys
+
 from PIL import Image
+
 from loguru import logger
 
 

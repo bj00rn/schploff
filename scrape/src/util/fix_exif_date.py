@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 
+import logging
 import os
-import time
 import subprocess
+import time
 
 from PIL import Image
-import logging
+
 from loguru import logger
 
 

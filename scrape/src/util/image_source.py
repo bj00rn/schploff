@@ -1,6 +1,8 @@
+from io import BytesIO
+
 from PIL import Image
 from requests import get
-from io import BytesIO
+
 from loguru import logger
 
 

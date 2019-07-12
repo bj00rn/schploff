@@ -1,9 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import logging
 import sqlite3 as lite
 import sys
-import logging
+
 from loguru import logger
 
 

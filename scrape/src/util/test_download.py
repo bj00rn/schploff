@@ -1,7 +1,9 @@
 import unittest
-from PIL import Image
-from scrape.util.download import get_image
 from io import BytesIO
+
+from PIL import Image
+
+from scrape.util.download import get_image
 
 
 class TestDownload(unittest.TestCase):

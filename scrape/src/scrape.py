@@ -1,14 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import argparse
+import logging
+import logging.config
 import os
 import sys
 from datetime import datetime
-from util.download import process_files
-import logging
-import logging.config
-from util.image_source import FIBouySource, DMISourceBaltic, DMISourceNorthsea, SMHIBouySource, FIForecastSource
-import argparse
+
 from loguru import logger
+from util.download import process_files
+from util.image_source import (DMISourceBaltic, DMISourceNorthsea,
+                               FIBouySource, FIForecastSource, SMHIBouySource)
 
 
 def dir(path, permission=os.R_OK):
