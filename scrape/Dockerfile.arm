@@ -35,22 +35,13 @@ RUN apk add --no-cache python3 \
   libstdc++ \
   expat-dev \
   expat \
-  && mkdir -p /tmp/deps \
-  && git clone https://github.com/Exiv2/exiv2.git /tmp/deps/exiv2 \
-  && cd /tmp/deps/exiv2 \
-  && git checkout -q d775683f579543c35463ab2a8d9425da10d2f016 \
-  && mkdir -p /tmp/deps/exiv2/build \
-  && cd /tmp/deps/exiv2/build \
-  && cmake .. -DCMAKE_INSTALL_PREFIX=/usr -DEXIV2_ENABLE_LENSDATA=OFF -DEXIV2_ENABLE_PRINTUCS2=OFF -DEXIV2_BUILD_SAMPLES=OFF -DEXIV2_ENABLE_NLS=OFF -DEXIV2_ENABLE_PNG=OFF \
-  && make -j4 && make install \
-  && rm -rf /tmp/deps \
   && cd /opt/surflog \
   && pip3 install -r requirements.txt \
   && apk del $(apk info | grep "\-dev") \
   build-base \
   cmake \
   git \
-  &&  rm -r /root/.cache \
+  && rm -r /root/.cache \
   && rm -rf /tmp/deps
 
 # setup crons
