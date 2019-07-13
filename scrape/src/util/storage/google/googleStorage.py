@@ -124,14 +124,13 @@ class PhotosStorage(GoogleStorage):
             ['mediaItem']['productUrl']))
 
     def list_albums(self):
-        logger.info(
-            requests.get('https://photoslibrary.googleapis.com/v1/albums',
-                         headers={
-                             'Content-type':
-                             'application/json',
-                             'Authorization':
-                             'Bearer ' + self.gauth.credentials.access_token
-                         }).json())
+        return requests.get('https://photoslibrary.googleapis.com/v1/albums',
+                            headers={
+                                'Content-type':
+                                'application/json',
+                                'Authorization':
+                                'Bearer ' + self.gauth.credentials.access_token
+                            }).json()
 
 
 class DriveStorage(GoogleStorage):
