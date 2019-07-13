@@ -1,2 +1,2 @@
 #!/bin/sh
-python3 /opt/surflog/scrape.py --upload-to-photos --photos-album "AEoR0Hv0W2_P6k7zbLUKXUNE6pQJGlIhEqA-F4ruXfXPyUd1alZHyZPR4JwOCtlkvxLvRV_KDU4W" --check-fi /tmp
+python3 /opt/surflog/scrape.py --upload-to-photos --photos-album "AEoR0HvJ0j0EUOeXpXdjCeKy_O5qkeZZ3GGyBmEEue02QqWrx6h_FdbqLghuIAOwaofaJpIt7Opz" --check-fi /tmp
