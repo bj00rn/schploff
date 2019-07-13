@@ -62,6 +62,13 @@ def main(argv):
                         dest='upload_to_photos',
                         action='store_true',
                         help='upload files to google photos')
+    parser.add_argument(
+        '--photos-album',
+        dest='photos_album',
+        type=str,
+        help=
+        'id of google photos album to add images to. only appliccable when uploading to google photos'
+    )
     parser.add_argument('--quality',
                         dest='quality',
                         type=int,
@@ -93,7 +100,8 @@ def main(argv):
         files += FIBouySource().get_images()
 
     process_files(aargs.database, files, aargs.archivepath, aargs.quality,
-                  aargs.upload_to_gdrive, aargs.upload_to_photos)
+                  aargs.upload_to_gdrive, aargs.upload_to_photos,
+                  aargs.photos_album)
 
 
 if __name__ == '__main__':

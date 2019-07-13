@@ -3,7 +3,6 @@ import os
 import time
 from datetime import datetime
 
-
 import piexif
 import piexif.helper
 from loguru import logger
@@ -21,7 +20,8 @@ def process_files(db_file,
                   archive_path,
                   quality,
                   upload_to_gdrive=False,
-                  upload_to_photos=False):
+                  upload_to_photos=False,
+                  photos_album=None):
 
     imageStorage = []
     if upload_to_gdrive:
@@ -71,7 +71,10 @@ def process_files(db_file,
                         fix_image_dates(archive_file, image_date)
 
                         for storage in imageStorage:
-                            storage.upload(archive_file, image_fn, image_fn)
+                            storage.upload(archive_file,
+                                           title=image_fn,
+                                           album_id=photos_album,
+                                           description=image_fn)
 
                         store.add(hash=hexh,
                                   timestamp=time.mktime(
@@ -86,8 +89,7 @@ def process_files(db_file,
 
             except Exception as e:
                 logger.exception('failed to process [{hexh}] [{fn}]'.format(
-                    hexh=hexh, fn=of_name),
-                                 exc_info=True)
+                    hexh=hexh, fn=of_name))
 
 
 def save_image(image, archive_path, file_name, quality=80, exif=None):

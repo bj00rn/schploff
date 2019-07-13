@@ -60,6 +60,7 @@ ADD ./crons/archive_files /etc/periodic/04h/
 
 # Add source as late as possible to optimize buildtime
 ADD ./src /opt/surflog
+ADD ./crons /opt/surflog/crons
 
 #ENTRYPOINT ["python3", "/opt/surflog/scrape.py", "/opt/surflog", "--check-fi"]
 

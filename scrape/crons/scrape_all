@@ -1,2 +1,2 @@
 #!/bin/sh
-python3 /opt/surflog/scrape.py --database /opt/surflog/host/scrape/scrape.sqlite3  --upload-to-photos  --check-fi /opt/surflog/host/archive
+python3 /opt/surflog/scrape.py --database /opt/surflog/host/scrape/scrape.sqlite3  --upload-to-photos --photos-album "AEoR0Htg_D27F3p79S3yELZBpx90Iurk-QWJa--AqxRuf_1fCfXCSHYwFRIMBheRKmQYNowmCzjJ" --check-fi /opt/surflog/host/archive

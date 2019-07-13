@@ -51,10 +51,12 @@ class PhotosStorage(GoogleStorage):
     def __init__(self, settings_file):
         super().__init__(target_path=None, settings_file=settings_file)
 
-    def upload(self, file_path, file_name=None, description=None):
-        base_name = os.path.basename(file_path)
-        fn = file_name if file_name is not None else base_name
+    def upload(self, file_path, **kwargs):
         try:
+            fn = os.path.basename(file_path)
+            description = kwargs.get('description', None)
+            album_id = kwargs.get('album_id', None)
+
             headers = {
                 'Content-Type': "application/octet-stream",
                 'X-Goog-Upload-File-Name': fn,
@@ -69,47 +71,67 @@ class PhotosStorage(GoogleStorage):
                     'https://photoslibrary.googleapis.com/v1/uploads',
                     headers=headers,
                     data=data)
-                image_token = response.text
+                upload_token = response.text
 
                 if response.status_code != 200:
                     raise Exception(f'Failed to upload media: {response.text}')
                 else:
                     logger.info(
                         'Uploaded to google photos [{checksum}] [{fn}]'.format(
-                            checksum=image_token, fn=fn))
+                            checksum=upload_token, fn=fn))
 
-                response = requests.post(
-                    'https://photoslibrary.googleapis.com/v1/mediaItems:batchCreate',
-                    headers={
-                        'Content-type':
-                        'application/json',
-                        'Authorization':
-                        'Bearer ' + self.gauth.credentials.access_token,
-                    },
-                    data=json.dumps({
-                        "newMediaItems": [{
-                            "description": fn,
-                            "simpleMediaItem": {
-                                "uploadToken": image_token,
-                            }
-                        }]
-                    }))
-                if response.status_code != 200 or response.json(
-                )['newMediaItemResults'][0]['status']['message'].upper(
-                ) not in [
-                        'SUCCESS', 'OK'
-                ]:  # for some reason the api always seems to return 200, hence the need to check message
-                    raise Exception(
-                        f'Failed to create media item: {response.json()}')
-                else:
-                    logger.info('Created media item [{url}]'.format(
-                        url=json.loads(response.text)['newMediaItemResults'][0]
-                        ['mediaItem']['productUrl']))
-
+                self._create_media_item(upload_token, description, album_id)
         except Exception as e:
-            logger.exception('failed to upload [{fn}] to google photos'.format(
-                fn=file_path),
-                             exc_info=True)
+            raise Exception("Failed to save to google photos") from e
+
+    def _create_media_item(self, upload_token, description=None,
+                           album_id=None):
+        mediaItemRequestBody = {
+            "newMediaItems": [{
+                "simpleMediaItem": {
+                    "uploadToken": upload_token,
+                }
+            }]
+        }
+
+        if (description):
+            mediaItemRequestBody["newMediaItems"][0][
+                'description'] = description
+
+        if (album_id):
+            mediaItemRequestBody['albumId'] = album_id
+            mediaItemRequestBody["albumPosition"] = {
+                "position": "FIRST_IN_ALBUM"
+            }
+
+        response = requests.post(
+            'https://photoslibrary.googleapis.com/v1/mediaItems:batchCreate',
+            headers={
+                'Content-type': 'application/json',
+                'Authorization':
+                'Bearer ' + self.gauth.credentials.access_token,
+            },
+            data=json.dumps(mediaItemRequestBody))
+
+        if response.status_code != 200 or response.json(
+        )['newMediaItemResults'][0]['status']['message'].upper() not in [
+                'SUCCESS', 'OK'
+        ]:  # for some reason the api always seems to return 200, hence the need to check message
+            raise Exception(f'Unexpected response: {response.json()}')
+
+        logger.info('Created media item [{url}]'.format(
+            url=json.loads(response.text)['newMediaItemResults'][0]
+            ['mediaItem']['productUrl']))
+
+    def list_albums(self):
+        logger.info(
+            requests.get('https://photoslibrary.googleapis.com/v1/albums',
+                         headers={
+                             'Content-type':
+                             'application/json',
+                             'Authorization':
+                             'Bearer ' + self.gauth.credentials.access_token
+                         }).json())
 
 
 class DriveStorage(GoogleStorage):
