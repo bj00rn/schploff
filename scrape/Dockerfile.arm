@@ -51,8 +51,8 @@ RUN mkdir -p /etc/periodic/45m \
   && mkdir -p /etc/periodic/minutely \
   && echo '*   *  *  *  *  run-parts /etc/periodic/minutely > /dev/stdout 2>&1' >>/etc/crontabs/root \
   && echo '45  *  *  *  *  run-parts /etc/periodic/45m > /dev/stdout 2>&1' >> /etc/crontabs/root \
-  && echo '*   23   *  *  *  run-parts /etc/periodic/23h > /dev/stdout 2>&1' >> /etc/crontabs/root \
-  && echo '*   4   *  *  *  run-parts /etc/periodic/04h > /dev/stdout 2>&1' >> /etc/crontabs/root 
+  && echo '0   23   *  *  *  run-parts /etc/periodic/23h > /dev/stdout 2>&1' >> /etc/crontabs/root \
+  && echo '0   4   *  *  *  run-parts /etc/periodic/04h > /dev/stdout 2>&1' >> /etc/crontabs/root
 
 ADD ./crons/scrape /etc/periodic/45m/
 ADD ./crons/scrape_all /etc/periodic/23h/
