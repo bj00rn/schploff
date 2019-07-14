@@ -48,6 +48,9 @@ class GoogleStorage:
 
 
 class PhotosStorage(GoogleStorage):
+
+    API_URL = 'https://photoslibrary.googleapis.com/v1/'
+
     def __init__(self, settings_file):
         super().__init__(target_path=None, settings_file=settings_file)
 
@@ -67,10 +70,9 @@ class PhotosStorage(GoogleStorage):
 
             with open(file_path, 'rb') as file:
                 data = file.read()
-                response = requests.post(
-                    'https://photoslibrary.googleapis.com/v1/uploads',
-                    headers=headers,
-                    data=data)
+                response = requests.post(self.API_URL + 'uploads',
+                                         headers=headers,
+                                         data=data)
                 upload_token = response.text
 
                 if response.status_code != 200:
@@ -104,14 +106,15 @@ class PhotosStorage(GoogleStorage):
                 "position": "FIRST_IN_ALBUM"
             }
 
-        response = requests.post(
-            'https://photoslibrary.googleapis.com/v1/mediaItems:batchCreate',
-            headers={
-                'Content-type': 'application/json',
-                'Authorization':
-                'Bearer ' + self.gauth.credentials.access_token,
-            },
-            data=json.dumps(mediaItemRequestBody))
+        response = requests.post(self.API_URL + 'mediaItems:batchCreate',
+                                 headers={
+                                     'Content-type':
+                                     'application/json',
+                                     'Authorization':
+                                     'Bearer ' +
+                                     self.gauth.credentials.access_token,
+                                 },
+                                 data=json.dumps(mediaItemRequestBody))
 
         if response.status_code != 200 or response.json(
         )['newMediaItemResults'][0]['status']['message'].upper() not in [
@@ -124,7 +127,7 @@ class PhotosStorage(GoogleStorage):
             ['mediaItem']['productUrl']))
 
     def list_albums(self):
-        return requests.get('https://photoslibrary.googleapis.com/v1/albums',
+        return requests.get(self.API_URL + 'albums',
                             headers={
                                 'Content-type':
                                 'application/json',
