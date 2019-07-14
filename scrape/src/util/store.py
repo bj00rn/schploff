@@ -44,11 +44,9 @@ class SqliteStore():
 
     def add(self, hash, timestamp, filename, file_class):
         cur = self.con.cursor()
-        cur.execute('insert into download values(?,?,?,?)',
-                    (hash, timestamp, filename, file_class))
+        cur.execute('insert into download values(?,?,?,?)', (hash, timestamp, filename, file_class))
         self.con.commit()
-        logger.info('added [{hash}] [{filename}] to database'.format(
-            hash=hash, filename=filename))
+        logger.info('added [{hash}] [{filename}] to database'.format(hash=hash, filename=filename))
         return True
 
     def remove(self, hash):
@@ -60,9 +58,7 @@ class SqliteStore():
 
     def updated(self, file_class):
         cur = self.con.cursor()
-        cur.execute(
-            'SELECT timestamp FROM download where fileclass=? ORDER BY timestamp DESC LIMIT 1',
-            (file_class, ))
+        cur.execute('SELECT timestamp FROM download where fileclass=? ORDER BY timestamp DESC LIMIT 1', (file_class, ))
         return cur.fetchone()
 
     def exists(self, hash):

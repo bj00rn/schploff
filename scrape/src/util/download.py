@@ -26,11 +26,9 @@ def process_files(db_file,
     imageStorage = []
     if upload_to_gdrive:
         imageStorage.append(
-            DriveStorage(target_path='0Byrk3xueZv-4cmtBb1cxdFY4WTg',
-                         settings_file='./google_api/settings.yaml'))
+            DriveStorage(target_path='0Byrk3xueZv-4cmtBb1cxdFY4WTg', settings_file='./google_api/settings.yaml'))
     if upload_to_photos:
-        imageStorage.append(
-            PhotosStorage(settings_file='./google_api/settings.yaml'))
+        imageStorage.append(PhotosStorage(settings_file='./google_api/settings.yaml'))
 
     for storage in imageStorage:
         storage.connect()
@@ -51,11 +49,8 @@ def process_files(db_file,
                         )
 
                         exif_ifd = {
-                            piexif.ExifIFD.DateTimeOriginal:
-                            image_date.strftime('%Y:%m:%d %H:%M:%S'),
-                            piexif.ExifIFD.UserComment:
-                            piexif.helper.UserComment.dump(image_fn,
-                                                           encoding="ascii"),
+                            piexif.ExifIFD.DateTimeOriginal: image_date.strftime('%Y:%m:%d %H:%M:%S'),
+                            piexif.ExifIFD.UserComment: piexif.helper.UserComment.dump(image_fn, encoding="ascii"),
                         }
 
                         exif_dict = {'Exif': exif_ifd}
@@ -71,25 +66,18 @@ def process_files(db_file,
                         fix_image_dates(archive_file, image_date)
 
                         for storage in imageStorage:
-                            storage.upload(archive_file,
-                                           title=image_fn,
-                                           album_id=photos_album,
-                                           description=image_fn)
+                            storage.upload(archive_file, title=image_fn, album_id=photos_album, description=image_fn)
 
                         store.add(hash=hexh,
-                                  timestamp=time.mktime(
-                                      image_date.timetuple()),
+                                  timestamp=time.mktime(image_date.timetuple()),
                                   filename=archive_file,
                                   file_class='n/a')
 
                 else:
-                    logger.info(
-                        'skipping [{hash}[ [{filename}] already in db'.format(
-                            hash=hexh, filename=of_name))
+                    logger.info('skipping [{hash}[ [{filename}] already in db'.format(hash=hexh, filename=of_name))
 
             except Exception as e:
-                logger.exception('failed to process [{hexh}] [{fn}]'.format(
-                    hexh=hexh, fn=of_name))
+                logger.exception('failed to process [{hexh}] [{fn}]'.format(hexh=hexh, fn=of_name))
 
 
 def save_image(image, archive_path, file_name, quality=80, exif=None):
@@ -98,7 +86,6 @@ def save_image(image, archive_path, file_name, quality=80, exif=None):
         fn,
         quality=quality,
     )
-    piexif.insert(
-        exif, fn)  # use piexif for now due to lack of web support in Pillow
+    piexif.insert(exif, fn)  # use piexif for now due to lack of web support in Pillow
     logger.info('Wrote [{fn}]'.format(fn=fn))
     return fn

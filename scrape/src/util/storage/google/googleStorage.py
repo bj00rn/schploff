@@ -23,16 +23,14 @@ class GoogleStorage:
         try:
             self.gauth = GoogleAuth()
             # Try to load saved client credentials
-            self.gauth.LoadCredentialsFile(
-                self.config['save_credentials_file'])
+            self.gauth.LoadCredentialsFile(self.config['save_credentials_file'])
             if self.gauth.credentials is None:
                 if sys.stdout.isatty():
                     # Authenticate if they're not there and shell is interactive
                     self.gauth.CommandLineAuth()
                 else:
                     raise ValueError(
-                        'No credentials found, need to log in first. try running script from interactive shell'
-                    )
+                        'No credentials found, need to log in first. try running script from interactive shell')
             elif self.gauth.access_token_expired:
                 # Refresh them if expired
                 self.gauth.Refresh()
@@ -40,8 +38,7 @@ class GoogleStorage:
                 # Initialize the saved creds
                 self.gauth.Authorize()
             # Save the current credentials to a file
-            self.gauth.SaveCredentialsFile(
-                self.config['save_credentials_file'])
+            self.gauth.SaveCredentialsFile(self.config['save_credentials_file'])
         except Exception as e:
             logger.error('failed to connect to google storage', exc_info=True)
             raise e
@@ -64,30 +61,24 @@ class PhotosStorage(GoogleStorage):
                 'Content-Type': "application/octet-stream",
                 'X-Goog-Upload-File-Name': fn,
                 'X-Goog-Upload-Protocol': "raw",
-                'Authorization':
-                "Bearer " + self.gauth.credentials.access_token,
+                'Authorization': "Bearer " + self.gauth.credentials.access_token,
             }
 
             with open(file_path, 'rb') as file:
                 data = file.read()
-                response = requests.post(self.API_URL + 'uploads',
-                                         headers=headers,
-                                         data=data)
+                response = requests.post(self.API_URL + 'uploads', headers=headers, data=data)
                 upload_token = response.text
 
                 if response.status_code != 200:
                     raise Exception(f'Failed to upload media: {response.text}')
                 else:
-                    logger.info(
-                        'Uploaded to google photos [{checksum}] [{fn}]'.format(
-                            checksum=upload_token, fn=fn))
+                    logger.info('Uploaded to google photos [{checksum}] [{fn}]'.format(checksum=upload_token, fn=fn))
 
                 self._create_media_item(upload_token, description, album_id)
         except Exception as e:
             raise Exception("Failed to save to google photos") from e
 
-    def _create_media_item(self, upload_token, description=None,
-                           album_id=None):
+    def _create_media_item(self, upload_token, description=None, album_id=None):
         mediaItemRequestBody = {
             "newMediaItems": [{
                 "simpleMediaItem": {
@@ -97,42 +88,32 @@ class PhotosStorage(GoogleStorage):
         }
 
         if (description):
-            mediaItemRequestBody["newMediaItems"][0][
-                'description'] = description
+            mediaItemRequestBody["newMediaItems"][0]['description'] = description
 
         if (album_id):
             mediaItemRequestBody['albumId'] = album_id
-            mediaItemRequestBody["albumPosition"] = {
-                "position": "FIRST_IN_ALBUM"
-            }
+            mediaItemRequestBody["albumPosition"] = {"position": "FIRST_IN_ALBUM"}
 
         response = requests.post(self.API_URL + 'mediaItems:batchCreate',
                                  headers={
-                                     'Content-type':
-                                     'application/json',
-                                     'Authorization':
-                                     'Bearer ' +
-                                     self.gauth.credentials.access_token,
+                                     'Content-type': 'application/json',
+                                     'Authorization': 'Bearer ' + self.gauth.credentials.access_token,
                                  },
                                  data=json.dumps(mediaItemRequestBody))
 
-        if response.status_code != 200 or response.json(
-        )['newMediaItemResults'][0]['status']['message'].upper() not in [
-                'SUCCESS', 'OK'
-        ]:  # for some reason the api always seems to return 200, hence the need to check message
+        if response.status_code != 200 or response.json()['newMediaItemResults'][0]['status']['message'].upper(
+        ) not in ['SUCCESS', 'OK'
+                  ]:  # for some reason the api always seems to return 200, hence the need to check message
             raise Exception(f'Unexpected response: {response.json()}')
 
         logger.info('Created media item [{url}]'.format(
-            url=json.loads(response.text)['newMediaItemResults'][0]
-            ['mediaItem']['productUrl']))
+            url=json.loads(response.text)['newMediaItemResults'][0]['mediaItem']['productUrl']))
 
     def list_albums(self):
         return requests.get(self.API_URL + 'albums',
                             headers={
-                                'Content-type':
-                                'application/json',
-                                'Authorization':
-                                'Bearer ' + self.gauth.credentials.access_token
+                                'Content-type': 'application/json',
+                                'Authorization': 'Bearer ' + self.gauth.credentials.access_token
                             }).json()
 
 
@@ -151,17 +132,13 @@ class DriveStorage(GoogleStorage):
                     'kind': 'drive#fileLink',
                     'id': self.path,
                 }],
-                'title':
-                fn,
-                'description':
-                description,
+                'title': fn,
+                'description': description,
             })
             # Set content of the file from given string.
             file1.SetContentFile(file_path)
             file1.Upload()
-            logger.info('Uploaded [{checksum}] [{fn}]'.format(
-                checksum=file1['md5Checksum'], fn=fn))
+            logger.info('Uploaded [{checksum}] [{fn}]'.format(checksum=file1['md5Checksum'], fn=fn))
             return file1
         except Exception as e:
-            logger.error(
-                'failed to upload [{fn}] to google drive'.format(fn=file_path))
+            logger.error('failed to upload [{fn}] to google drive'.format(fn=file_path))
