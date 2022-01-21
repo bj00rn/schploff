@@ -1,4 +1,4 @@
-ipython==7.6.1
+ipython==7.16.3
 pylint==2.3.1
 autopep8==1.4.4
 yapf==0.27.0
